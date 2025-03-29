@@ -200,8 +200,8 @@
                 <div class="card">
                     <h3><span class="status-indicator" data-device-ip="192.168.1.10"></span>Main PC</h3>
                     <div class="card-content">
-                        <p>IP: 192.168.1.10</p>
-                        <p>OS: Windows 10</p>
+                        <p>IP: 192.168.1.19</p>
+                        <p>PC</p>
                     </div>
                     <a href="http://192.168.1.10" class="button">Access</a>
                     <a href="vnc://192.168.1.10:5900" class="button">VNC</a>
@@ -211,8 +211,8 @@
                 <div class="card">
                     <h3><span class="status-indicator" data-device-ip="192.168.1.11"></span>Laptop</h3>
                     <div class="card-content">
-                        <p>IP: 192.168.1.11</p>
-                        <p>OS: Ubuntu 22.04</p>
+                        <p>IP: 192.168.1.10</p>
+                        <p>Laptop</p>
                     </div>
                     <a href="http://192.168.1.11" class="button">Access</a>
                     <a href="vnc://192.168.1.11:5900" class="button">VNC</a>
@@ -275,7 +275,7 @@
                         <p>Connect to your devices via SSH</p>
                         <form id="ssh-form">
                             <input type="text" id="ssh-user" placeholder="Username" value="pi" style="padding: 8px; width: 100%; margin-bottom: 10px; border-radius: 4px; border: 1px solid #ddd;">
-                            <input type="text" id="ssh-ip" placeholder="IP Address" value="192.168.1.2" style="padding: 8px; width: 100%; margin-bottom: 10px; border-radius: 4px; border: 1px solid #ddd;">
+                            <input type="text" id="ssh-ip" placeholder="IP Address" value="192.168.1.21" style="padding: 8px; width: 100%; margin-bottom: 10px; border-radius: 4px; border: 1px solid #ddd;">
                             <button type="button" onclick="launchSSH()" class="button" style="width: 100%;">Connect</button>
                         </form>
                     </div>
@@ -289,8 +289,8 @@
                 <div class="card">
                     <h3>Raspberry Pi</h3>
                     <div class="card-content">
-                        <p><strong>Status:</strong> <span class="status-indicator" data-device-ip="192.168.1.2"></span> <span id="pi-status">Loading...</span></p>
-                        <p><strong>IP:</strong> 192.168.1.2</p>
+                        <p><strong>Status:</strong> <span class="status-indicator" data-device-ip="192.168.1.21"></span> <span id="pi-status">Loading...</span></p>
+                        <p><strong>IP:</strong> 192.168.1.21</p>
                         <p><strong>Uptime:</strong> <span id="pi-uptime">Loading...</span></p>
                         <p><strong>CPU:</strong> <span id="pi-cpu">Loading...</span></p>
                         <p><strong>Memory:</strong> <span id="pi-memory">Loading...</span></p>
@@ -380,7 +380,7 @@
                                 indicator.closest('.card').style.opacity = 1;
                                 
                                 // Update Pi status text if this is the Pi
-                                if (device.ip === '192.168.1.2') {
+                                if (device.ip === '192.168.1.21') {
                                     document.getElementById('pi-status').textContent = 'Online';
                                 }
                             } else {
@@ -389,7 +389,7 @@
                                 indicator.closest('.card').style.opacity = 0.7;
                                 
                                 // Update Pi status text if this is the Pi
-                                if (device.ip === '192.168.1.2') {
+                                if (device.ip === '192.168.1.21') {
                                     document.getElementById('pi-status').textContent = 'Offline';
                                 }
                             }
