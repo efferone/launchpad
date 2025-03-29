@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Network Dashboard</title>
+    <style>
+        :root {
+            --primary-color: #e74c3c;
+            --secondary-color: #3498db;
+            --background-color: #f5f5f5;
+            --card-color: #ffffff;
+            --text-color: #333333;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--background-color);
+            margin: 0;
+            padding: 20px;
+            color: var(--text-color);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .online {
+            background-color: #2ecc71;
+        }
+        
+        .offline {
+            background-color: #e74c3c;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+        }
+        
+        .section-header {
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            color: var(--secondary-color);
+        }
+        
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .card {
+            background-color: var(--card-color);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+        }
+        
+        .card-content {
+            margin-bottom: 15px;
+        }
+        
+        .button {
+            display: inline-block;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 4px;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+        
+        .button:hover {
+            background-color: #2980b9;
+        }
+        
+        .terminal-container {
+            margin-top: 20px;
+            background-color: #2c3e50;
+            border-radius: 8px;
+            padding: 20px;
+            color: #ecf0f1;
+        }
+        
+        .terminal-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        
+        .terminal-controls span {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .terminal-close {
+            background-color: #e74c3c;
+        }
+        
+        .terminal-minimize {
+            background-color: #f1c40f;
+        }
+        
+        .terminal-maximize {
+            background-color: #2ecc71;
+        }
+        
+        .terminal-content {
+            font-family: monospace;
+            white-space: pre;
+            overflow-x: auto;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            color: #777;
+            font-size: 0.9em;
+        }
+        
+        /* Dark Mode Toggle */
+        .dark-mode-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            cursor: pointer;
+            padding: 10px;
+            background-color: var(--card-color);
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+        
+        body.dark-mode {
+            --background-color: #1a1a2e;
+            --card-color: #16213e;
+            --text-color: #e6e6e6;
+        }
+        
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dark-mode-toggle" onclick="toggleDarkMode()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+    </div>
+    
+    <div class="container">
+        <header>
+            <h1>Home Network Dashboard</h1>
+            <p>Connected to your home network via Wireguard VPN</p>
+        </header>
+        
+        <section class="section">
+            <h2 class="section-header">Home Devices</h2>
+            <div class="cards">
+                <div class="card">
+                    <h3><span class="status-indicator online"></span>Main PC</h3>
+                    <div class="card-content">
+                        <p>IP: 192.168.1.10</p>
+                        <p>OS: Windows 10</p>
+                    </div>
+                    <a href="http://192.168.1.10" class="button">Access</a>
+                    <a href="vnc://192.168.1.10:5900" class="button">VNC</a>
+                    <a href="rdp://192.168.1.10" class="button">RDP</a>
+                </div>
+                
+                <div class="card">
+                    <h3><span class="status-indicator online"></span>Laptop</h3>
+                    <div class="card-content">
+                        <p>IP: 192.168.1.11</p>
+                        <p>OS: Ubuntu 22.04</p>
+                    </div>
+                    <a href="http://192.168.1.11" class="button">Access</a>
+                    <a href="vnc://192.168.1.11:5900" class="button">VNC</a>
+                    <a href="ssh://user@192.168.1.11" class="button">SSH</a>
+                </div>
+                
+                <div class="card">
+                    <h3><span class="status-indicator offline"></span>NAS</h3>
+                    <div class="card-content">
+                        <p>IP: 192.168.1.12</p>
+                        <p>Storage: 8TB</p>
+                    </div>
+                    <a href="http://192.168.1.12" class="button">Web Interface</a>
+                    <a href="smb://192.168.1.12" class="button">File Share</a>
+                </div>
+                
+                <!-- Add more devices as needed -->
+            </div>
+        </section>
+        
+        <section class="section">
+            <h2 class="section-header">VNC Access</h2>
+            <div class="cards">
+                <div class="card">
+                    <h3>Quick VNC Connect</h3>
+                    <div class="card-content">
+                        <p>Launch VNC viewer to access your devices</p>
+                        <form id="vnc-form">
+                            <input type="text" id="vnc-ip" placeholder="IP Address" value="192.168.1.10" style="padding: 8px; width: 100%; margin-bottom: 10px; border-radius: 4px; border: 1px solid #ddd;">
+                            <input type="text" id="vnc-port" placeholder="Port" value="5900" style="padding: 8px; width: 100%; margin-bottom: 10px; border-radius: 4px; border: 1px solid #ddd;">
+                            <button type="button" onclick="launchVNC()" class="button" style="width: 100%;">Connect</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section">
+            <h2 class="section-header">Terminal Access</h2>
+            <div class="terminal-container">
+                <div class="terminal-header">
+                    <div>
+                        <span style="font-weight: bold;">SSH Terminal</span>
+                    </div>
+                    <div class="terminal-controls">
+                        <span class="terminal-close"></span>
+                        <span class="terminal-minimize"></span>
+                        <span class="terminal-maximize"></span>
+                    </div>
+                </div>
+                <div class="terminal-content">
+                    <div id="terminal-output">Welcome to the terminal access portal!
+Type 'help' for available commands.</div>
+                    <div style="display: flex; margin-top: 10px;">
+                        <span style="color: #2ecc71; margin-right: 5px;">user@home-network:~$</span>
+                        <input type="text" id="terminal-input" placeholder="Enter command..." style="background: transparent; border: none; color: #ecf0f1; font-family: monospace; flex-grow: 1; outline: none;">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="cards" style="margin-top: 20px;">
+                <div class="card">
+                    <h3>Quick SSH Connect</h3>
+                    <div class="card-content">
+                        <p>Connect to your devices via SSH</p>
+                        <form id="ssh-form">
+                            <input type="text" id="ssh-user" placeholder="Username" value="pi" style="padding: 8px; width: 100%; margin-bottom: 10px; border-radius: 4px; border: 1px solid #ddd;">
+                            <input type="text" id="ssh-ip" placeholder="IP Address" value="192.168.1.2" style="padding: 8px; width: 100%; margin-bottom: 10px; border-radius: 4px; border: 1px solid #ddd;">
+                            <button type="button" onclick="launchSSH()" class="button" style="width: 100%;">Connect</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section">
+            <h2 class="section-header">Network Status</h2>
+            <div class="cards">
+                <div class="card">
+                    <h3>Raspberry Pi</h3>
+                    <div class="card-content">
+                        <p><strong>Status:</strong> <span class="status-indicator online"></span> Online</p>
+                        <p><strong>IP:</strong> 192.168.1.2</p>
+                        <p><strong>Uptime:</strong> <span id="pi-uptime">Loading...</span></p>
+                        <p><strong>CPU:</strong> <span id="pi-cpu">Loading...</span></p>
+                        <p><strong>Memory:</strong> <span id="pi-memory">Loading...</span></p>
+                    </div>
+                    <a href="/phpsysinfo/" class="button">System Info</a>
+                </div>
+                
+                <div class="card">
+                    <h3>WireGuard VPN</h3>
+                    <div class="card-content">
+                        <p><strong>Status:</strong> <span class="status-indicator online"></span> Connected</p>
+                        <p><strong>Client IP:</strong> <span id="client-ip">Loading...</span></p>
+                        <p><strong>Connection Time:</strong> <span id="connection-time">Loading...</span></p>
+                    </div>
+                    <a href="/wireguard-status/" class="button">VPN Details</a>
+                </div>
+            </div>
+        </section>
+        
+        <footer>
+            <p>Home Network Dashboard | Last updated: <span id="last-updated"></span></p>
+        </footer>
+    </div>
+    
+    <script>
+        // Dark mode toggle
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+        }
+        
+        // Check for saved dark mode preference
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
+        }
+        
+        // Terminal functionality
+        const terminalInput = document.getElementById('terminal-input');
+        const terminalOutput = document.getElementById('terminal-output');
+        
+        terminalInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const command = this.value;
+                terminalOutput.innerHTML += `\nuser@home-network:~$ ${command}`;
+                
+                // Process command (basic simulation)
+                if (command === 'help') {
+                    terminalOutput.innerHTML += `\nAvailable commands:
+  help     - Display this help message
+  ping     - Check connectivity to a host
+  ls       - List directory contents
+  clear    - Clear terminal output
+  ssh      - Connect to a host via SSH`;
+                } else if (command.startsWith('ping')) {
+                    const host = command.split(' ')[1] || '192.168.1.1';
+                    terminalOutput.innerHTML += `\nPinging ${host}...
+PING ${host} (${host}): 56 data bytes
+64 bytes from ${host}: icmp_seq=0 ttl=64 time=0.345 ms
+64 bytes from ${host}: icmp_seq=1 ttl=64 time=0.251 ms
+64 bytes from ${host}: icmp_seq=2 ttl=64 time=0.312 ms
+
+--- ${host} ping statistics ---
+3 packets transmitted, 3 packets received, 0.0% packet loss
+round-trip min/avg/max/stddev = 0.251/0.303/0.345/0.039 ms`;
+                } else if (command === 'ls') {
+                    terminalOutput.innerHTML += `\nDesktop  Documents  Downloads  Music  Pictures  Videos`;
+                } else if (command === 'clear') {
+                    terminalOutput.innerHTML = 'Terminal cleared';
+                } else if (command.startsWith('ssh')) {
+                    const sshInfo = command.split(' ')[1] || 'user@192.168.1.10';
+                    terminalOutput.innerHTML += `\nConnecting to ${sshInfo}...
+The authenticity of host '${sshInfo.split('@')[1]}' can't be established.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added '${sshInfo.split('@')[1]}' (ED25519) to the list of known hosts.
+Password: ********
+Last login: Sat Mar 29 10:15:34 2025
+
+Connection established to ${sshInfo}`;
+                } else if (command) {
+                    terminalOutput.innerHTML += `\nCommand not found: ${command}. Type 'help' for available commands.`;
+                }
+                
+                // Clear input and scroll to bottom
+                this.value = '';
+                terminalOutput.scrollTop = terminalOutput.scrollHeight;
+            }
+        });
+        
+        // Function to launch VNC
+        function launchVNC() {
+            const ip = document.getElementById('vnc-ip').value;
+            const port = document.getElementById('vnc-port').value;
+            if (ip) {
+                window.location.href = `vnc://${ip}:${port}`;
+            }
+        }
+        
+        // Function to launch SSH
+        function launchSSH() {
+            const user = document.getElementById('ssh-user').value;
+            const ip = document.getElementById('ssh-ip').value;
+            if (ip) {
+                window.location.href = `ssh://${user}@${ip}`;
+            }
+        }
+        
+        // Update simulated stats
+        function updateStats() {
+            document.getElementById('pi-uptime').textContent = '3 days, 15 hours, 27 minutes';
+            document.getElementById('pi-cpu').textContent = '32%';
+            document.getElementById('pi-memory').textContent = '45% of 8GB';
+            document.getElementById('client-ip').textContent = '10.0.0.' + Math.floor(Math.random() * 254 + 1);
+            
+            // Calculate connection time based on current time
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('connection-time').textContent = `Today at ${hours}:${minutes}`;
+            
+            // Update last updated time
+            document.getElementById('last-updated').textContent = now.toLocaleString();
+        }
+        
+        // Call once on load and then every minute
+        updateStats();
+        setInterval(updateStats, 60000);
+        
+        // Check device status by simulating ping (in real implementation would use AJAX to check actual status)
+        function checkDeviceStatus() {
+            const indicators = document.querySelectorAll('.status-indicator');
+            indicators.forEach(indicator => {
+                // Simulate 90% chance of device being online
+                if (Math.random() > 0.1) {
+                    indicator.classList.add('online');
+                    indicator.classList.remove('offline');
+                    indicator.closest('.card').style.opacity = 1;
+                } else {
+                    indicator.classList.add('offline');
+                    indicator.classList.remove('online');
+                    indicator.closest('.card').style.opacity = 0.7;
+                }
+            });
+        }
+        
+        // Call device status check on load and every 30 seconds
+        checkDeviceStatus();
+        setInterval(checkDeviceStatus, 30000);
+    </script>
+</body>
+</html>
