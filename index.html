@@ -110,6 +110,7 @@
             border-radius: 8px;
             padding: 20px;
             color: #ecf0f1;
+            cursor: pointer;
         }
         
         .terminal-header {
@@ -197,7 +198,7 @@
             <h2 class="section-header">Home Devices</h2>
             <div class="cards">
                 <div class="card">
-                    <h3><span class="status-indicator online"></span>Main PC</h3>
+                    <h3><span class="status-indicator" data-device-ip="192.168.1.10"></span>Main PC</h3>
                     <div class="card-content">
                         <p>IP: 192.168.1.10</p>
                         <p>OS: Windows 10</p>
@@ -208,7 +209,7 @@
                 </div>
                 
                 <div class="card">
-                    <h3><span class="status-indicator online"></span>Laptop</h3>
+                    <h3><span class="status-indicator" data-device-ip="192.168.1.11"></span>Laptop</h3>
                     <div class="card-content">
                         <p>IP: 192.168.1.11</p>
                         <p>OS: Ubuntu 22.04</p>
@@ -219,7 +220,7 @@
                 </div>
                 
                 <div class="card">
-                    <h3><span class="status-indicator offline"></span>NAS</h3>
+                    <h3><span class="status-indicator" data-device-ip="192.168.1.12"></span>NAS</h3>
                     <div class="card-content">
                         <p>IP: 192.168.1.12</p>
                         <p>Storage: 8TB</p>
@@ -263,12 +264,7 @@
                     </div>
                 </div>
                 <div class="terminal-content">
-                    <div id="terminal-output">Welcome to the terminal access portal!
-Type 'help' for available commands.</div>
-                    <div style="display: flex; margin-top: 10px;">
-                        <span style="color: #2ecc71; margin-right: 5px;">user@home-network:~$</span>
-                        <input type="text" id="terminal-input" placeholder="Enter command..." style="background: transparent; border: none; color: #ecf0f1; font-family: monospace; flex-grow: 1; outline: none;">
-                    </div>
+                    <div>Click here to open Shell In A Box terminal</div>
                 </div>
             </div>
             
@@ -293,7 +289,7 @@ Type 'help' for available commands.</div>
                 <div class="card">
                     <h3>Raspberry Pi</h3>
                     <div class="card-content">
-                        <p><strong>Status:</strong> <span class="status-indicator online"></span> Online</p>
+                        <p><strong>Status:</strong> <span class="status-indicator" data-device-ip="192.168.1.2"></span> <span id="pi-status">Loading...</span></p>
                         <p><strong>IP:</strong> 192.168.1.2</p>
                         <p><strong>Uptime:</strong> <span id="pi-uptime">Loading...</span></p>
                         <p><strong>CPU:</strong> <span id="pi-cpu">Loading...</span></p>
@@ -323,65 +319,32 @@ Type 'help' for available commands.</div>
         // Dark mode toggle
         function toggleDarkMode() {
             document.body.classList.toggle('dark-mode');
-            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+            
+            // Use sessionStorage instead of localStorage to avoid sandboxing issues
+            try {
+                localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+            } catch (e) {
+                console.log('localStorage not available, using sessionStorage');
+                sessionStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+            }
         }
         
         // Check for saved dark mode preference
-        if (localStorage.getItem('darkMode') === 'true') {
-            document.body.classList.add('dark-mode');
+        try {
+            if (localStorage.getItem('darkMode') === 'true') {
+                document.body.classList.add('dark-mode');
+            }
+        } catch (e) {
+            console.log('localStorage not available, checking sessionStorage');
+            if (sessionStorage.getItem('darkMode') === 'true') {
+                document.body.classList.add('dark-mode');
+            }
         }
         
-        // Terminal functionality
-        const terminalInput = document.getElementById('terminal-input');
-        const terminalOutput = document.getElementById('terminal-output');
-        
-        terminalInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                const command = this.value;
-                terminalOutput.innerHTML += `\nuser@home-network:~$ ${command}`;
-                
-                // Process command (basic simulation)
-                if (command === 'help') {
-                    terminalOutput.innerHTML += `\nAvailable commands:
-  help     - Display this help message
-  ping     - Check connectivity to a host
-  ls       - List directory contents
-  clear    - Clear terminal output
-  ssh      - Connect to a host via SSH`;
-                } else if (command.startsWith('ping')) {
-                    const host = command.split(' ')[1] || '192.168.1.1';
-                    terminalOutput.innerHTML += `\nPinging ${host}...
-PING ${host} (${host}): 56 data bytes
-64 bytes from ${host}: icmp_seq=0 ttl=64 time=0.345 ms
-64 bytes from ${host}: icmp_seq=1 ttl=64 time=0.251 ms
-64 bytes from ${host}: icmp_seq=2 ttl=64 time=0.312 ms
-
---- ${host} ping statistics ---
-3 packets transmitted, 3 packets received, 0.0% packet loss
-round-trip min/avg/max/stddev = 0.251/0.303/0.345/0.039 ms`;
-                } else if (command === 'ls') {
-                    terminalOutput.innerHTML += `\nDesktop  Documents  Downloads  Music  Pictures  Videos`;
-                } else if (command === 'clear') {
-                    terminalOutput.innerHTML = 'Terminal cleared';
-                } else if (command.startsWith('ssh')) {
-                    const sshInfo = command.split(' ')[1] || 'user@192.168.1.10';
-                    terminalOutput.innerHTML += `\nConnecting to ${sshInfo}...
-The authenticity of host '${sshInfo.split('@')[1]}' can't be established.
-Are you sure you want to continue connecting (yes/no)? yes
-Warning: Permanently added '${sshInfo.split('@')[1]}' (ED25519) to the list of known hosts.
-Password: ********
-Last login: Sat Mar 29 10:15:34 2025
-
-Connection established to ${sshInfo}`;
-                } else if (command) {
-                    terminalOutput.innerHTML += `\nCommand not found: ${command}. Type 'help' for available commands.`;
-                }
-                
-                // Clear input and scroll to bottom
-                this.value = '';
-                terminalOutput.scrollTop = terminalOutput.scrollHeight;
-            }
-        });
+        // Terminal link - open Shell In A Box in new window
+        document.querySelector('.terminal-container').onclick = function() {
+            window.open('/terminal/', '_blank');
+        }
         
         // Function to launch VNC
         function launchVNC() {
@@ -401,47 +364,81 @@ Connection established to ${sshInfo}`;
             }
         }
         
-        // Update simulated stats
-        function updateStats() {
-            document.getElementById('pi-uptime').textContent = '3 days, 15 hours, 27 minutes';
-            document.getElementById('pi-cpu').textContent = '32%';
-            document.getElementById('pi-memory').textContent = '45% of 8GB';
-            document.getElementById('client-ip').textContent = '10.0.0.' + Math.floor(Math.random() * 254 + 1);
-            
-            // Calculate connection time based on current time
-            const now = new Date();
-            const hours = now.getHours().toString().padStart(2, '0');
-            const minutes = now.getMinutes().toString().padStart(2, '0');
-            document.getElementById('connection-time').textContent = `Today at ${hours}:${minutes}`;
-            
-            // Update last updated time
-            document.getElementById('last-updated').textContent = now.toLocaleString();
-        }
-        
-        // Call once on load and then every minute
-        updateStats();
-        setInterval(updateStats, 60000);
-        
-        // Check device status by simulating ping (in real implementation would use AJAX to check actual status)
+        // Check device status via backend
         function checkDeviceStatus() {
-            const indicators = document.querySelectorAll('.status-indicator');
-            indicators.forEach(indicator => {
-                // Simulate 90% chance of device being online
-                if (Math.random() > 0.1) {
-                    indicator.classList.add('online');
-                    indicator.classList.remove('offline');
-                    indicator.closest('.card').style.opacity = 1;
-                } else {
-                    indicator.classList.add('offline');
-                    indicator.classList.remove('online');
-                    indicator.closest('.card').style.opacity = 0.7;
-                }
-            });
+            fetch('check_status.php')
+                .then(response => response.json())
+                .then(data => {
+                    data.devices.forEach(device => {
+                        // Find all indicators for this device by IP
+                        const indicators = document.querySelectorAll(`[data-device-ip="${device.ip}"]`);
+                        
+                        indicators.forEach(indicator => {
+                            if (device.status === 'online') {
+                                indicator.classList.add('online');
+                                indicator.classList.remove('offline');
+                                indicator.closest('.card').style.opacity = 1;
+                                
+                                // Update Pi status text if this is the Pi
+                                if (device.ip === '192.168.1.2') {
+                                    document.getElementById('pi-status').textContent = 'Online';
+                                }
+                            } else {
+                                indicator.classList.add('offline');
+                                indicator.classList.remove('online');
+                                indicator.closest('.card').style.opacity = 0.7;
+                                
+                                // Update Pi status text if this is the Pi
+                                if (device.ip === '192.168.1.2') {
+                                    document.getElementById('pi-status').textContent = 'Offline';
+                                }
+                            }
+                        });
+                    });
+                })
+                .catch(error => {
+                    console.error('Error checking device status:', error);
+                });
         }
         
-        // Call device status check on load and every 30 seconds
+        // Update system info from backend
+        function updateStats() {
+            fetch('system_info.php')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('pi-uptime').textContent = data.uptime;
+                    document.getElementById('pi-cpu').textContent = data.cpu_usage + '%';
+                    document.getElementById('pi-memory').textContent = data.memory_usage + '% of ' + data.memory_total + 'GB';
+                    document.getElementById('client-ip').textContent = data.client_ip;
+                    document.getElementById('connection-time').textContent = data.connection_time;
+                    document.getElementById('last-updated').textContent = new Date().toLocaleString();
+                })
+                .catch(error => {
+                    console.error('Error updating system stats:', error);
+                    
+                    // Fallback to simulated data if the PHP script fails
+                    document.getElementById('pi-uptime').textContent = 'Error fetching data';
+                    document.getElementById('pi-cpu').textContent = 'Error fetching data';
+                    document.getElementById('pi-memory').textContent = 'Error fetching data';
+                    document.getElementById('client-ip').textContent = 'Error fetching data';
+                    document.getElementById('connection-time').textContent = 'Error fetching data';
+                    document.getElementById('last-updated').textContent = new Date().toLocaleString();
+                });
+        }
+        
+        // Update phpSysInfo link to actual phpSysInfo
+        document.querySelector('a[href="/phpsysinfo/"]').addEventListener('click', function(e) {
+            e.preventDefault();
+            window.open('/phpsysinfo/', '_blank');
+        });
+        
+        // Call device status check on load and then every 30 seconds
         checkDeviceStatus();
         setInterval(checkDeviceStatus, 30000);
+        
+        // Call stats update on load and then every 60 seconds
+        updateStats();
+        setInterval(updateStats, 60000);
     </script>
 </body>
 </html>
