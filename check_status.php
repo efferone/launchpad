@@ -3,7 +3,7 @@ header('Content-Type: application/json');
 
 // Get devices from request or use default list
 $devices = isset($_GET['devices']) ? json_decode($_GET['devices'], true) : [
-    ['name' => 'Main PC', 'ip' => '192.168.1.10'],
+    ['name' => 'PC', 'ip' => '192.168.1.10'],
     ['name' => 'Laptop', 'ip' => '192.168.1.11'],
     ['name' => 'NAS', 'ip' => '192.168.1.12'],
     ['name' => 'Raspberry Pi', 'ip' => '192.168.1.21']
