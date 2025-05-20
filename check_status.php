@@ -3,10 +3,15 @@ header('Content-Type: application/json');
 
 // Get devices from request or use default list
 $devices = isset($_GET['devices']) ? json_decode($_GET['devices'], true) : [
-    ['name' => 'PC', 'ip' => '192.168.1.10'],
-    ['name' => 'Laptop', 'ip' => '192.168.1.11'],
-    ['name' => 'NAS', 'ip' => '192.168.1.12'],
-    ['name' => 'Raspberry Pi', 'ip' => '192.168.1.21']
+    ['name' => 'Main PC', 'ip' => '192.168.1.19'],
+    ['name' => 'Laptop', 'ip' => '192.168.1.53'],
+    ['name' => 'Raspberry Pi', 'ip' => '192.168.1.21'],
+    ['name' => 'Pi Zero 2W', 'ip' => '192.168.1.66'],
+    ['name' => 'Dullbox', 'ip' => '192.168.1.90'],
+    ['name' => 'Webserver', 'ip' => '192.168.1.91'],
+    ['name' => 'Gitea', 'ip' => '192.168.1.92'],
+    ['name' => 'Syncthing', 'ip' => '192.168.1.93'],
+    ['name' => 'Debian12', 'ip' => '192.168.1.94'],
 ];
 
 $results = [];
@@ -16,7 +21,6 @@ foreach ($devices as $device) {
     $ip = escapeshellarg($device['ip']);
     // For Linux
     $cmd = "ping -c 1 -W 1 $ip > /dev/null 2>&1";
-    // For Windows, use: $cmd = "ping -n 1 -w 1000 $ip > NUL";
     
     exec($cmd, $output, $return_var);
     
