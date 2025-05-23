@@ -160,6 +160,7 @@
             border: 1px solid var(--title-color);
             font-family: 'JetBrains Mono', monospace;
             margin: 5px;
+            cursor: pointer;
         }
 
         .button:hover {
@@ -339,9 +340,9 @@
                     <a href="vnc://192.168.1.19:5900" class="button">
                         <i class="fas fa-desktop mr-2"></i>VNC
                     </a>
-                    <a href="ssh://192.168.1.19" class="button">
+                    <button onclick="openWebSSH('192.168.1.19', 'suzy')" class="button">
                         <i class="fas fa-terminal mr-2"></i>SSH
-                    </a>
+                    </button>
                 </div>
 
                 <div class="card">
@@ -352,9 +353,9 @@
                     <a href="vnc://192.168.1.53:5900" class="button">
                         <i class="fas fa-desktop mr-2"></i>VNC
                     </a>
-                    <a href="ssh://user@192.168.1.53" class="button">
+                    <button onclick="openWebSSH('192.168.1.53', 'snooze')" class="button">
                         <i class="fas fa-terminal mr-2"></i>SSH
-                    </a>
+                    </button>
                 </div>
 
                 <div class="card">
@@ -362,19 +363,19 @@
                     <div class="card-content">
                         <p><strong>IP:</strong> 192.168.1.21</p>
                     </div>
-                    <a href="ssh://fuzz@192.168.1.21" class="button">
+                    <button onclick="openWebSSH('192.168.1.21', 'fuzz')" class="button">
                         <i class="fas fa-terminal mr-2"></i>SSH
-                    </a>
+                    </button>
                 </div>
 
                 <div class="card">
-                    <h3><span class="status-indicator" data-device-ip="192.168.1.21"></span>Pi Zero 2W</h3>
+                    <h3><span class="status-indicator" data-device-ip="192.168.1.66"></span>Pi Zero 2W</h3>
                     <div class="card-content">
                         <p><strong>IP:</strong> 192.168.1.66</p>
                     </div>
-                    <a href="ssh://fuzz@192.168.1.21" class="button">
+                    <button onclick="openWebSSH('192.168.1.66', 'kong')" class="button">
                         <i class="fas fa-terminal mr-2"></i>SSH
-                    </a>
+                    </button>
                 </div>
 
             </div>
@@ -390,9 +391,9 @@
                 <div class="container-card">
                     <h3><span class="status-indicator" data-device-ip="192.168.1.91"></span>Webserver</h3>
                     <div class="ip-address">192.168.1.91</div>
-                    <a href="ssh://root@192.168.1.91" class="button">
+                    <button onclick="openWebSSH('192.168.1.91', 'root')" class="button">
                         <i class="fas fa-terminal mr-1"></i>SSH
-                    </a>
+                    </button>
                 </div>
                 
                 <!-- Gitea Container -->
@@ -402,9 +403,9 @@
                     <a href="http://192.168.1.92:3000" target="_blank" class="button">
                         <i class="fab fa-git-alt mr-1"></i>UI
                     </a>
-                    <a href="ssh://root@192.168.1.92" class="button">
+                    <button onclick="openWebSSH('192.168.1.92', 'root')" class="button">
                         <i class="fas fa-terminal mr-1"></i>SSH
-                    </a>
+                    </button>
                 </div>
                 
                 <!-- Syncthing Container -->
@@ -414,9 +415,9 @@
                     <a href="http://192.168.1.93:8384" target="_blank" class="button">
                         <i class="fas fa-sync-alt mr-1"></i>UI
                     </a>
-                    <a href="ssh://root@192.168.1.93" class="button">
+                    <button onclick="openWebSSH('192.168.1.93', 'root')" class="button">
                         <i class="fas fa-terminal mr-1"></i>SSH
-                    </a>
+                    </button>
                 </div>
 
                 <!-- Debian12 VM -->
@@ -426,9 +427,9 @@
                     <a href="http://192.168.1.94:5900" target="_blank" class="button">
                         <i class="fas fa-sync-alt mr-1"></i>VNC
                     </a>
-                    <a href="ssh://root@192.168.1.94" class="button">
+                    <button onclick="openWebSSH('192.168.1.94', 'root')" class="button">
                         <i class="fas fa-terminal mr-1"></i>SSH
-                    </a>
+                    </button>
                 </div>
             </div>
         </section>            
@@ -479,6 +480,25 @@
         <footer>
             <p>Home Network Dashboard | Last updated: <span id="last-updated"></span></p>
         </footer>
+    </div>
+
+    <!-- Terminal Modal -->
+    <div class="modal fade" id="terminalModal" tabindex="-1" role="dialog" aria-labelledby="terminalModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content" style="background-color: rgba(59, 43, 36, 0.6); border: 1px solid var(--title-color); backdrop-filter: blur(10px);">
+                <div class="modal-header" style="border-bottom: 1px solid var(--title-color); background-color: rgba(10, 10, 10, 0.7);">
+                    <h5 class="modal-title" id="terminalModalLabel" style="color: var(--primary-color);">
+                        <i class="fas fa-terminal mr-2"></i><span id="terminal-title">SSH Terminal</span>
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: var(--primary-color);">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body p-0">
+                    <iframe id="terminalFrame" style="width: 100%; height: 40vh; border: none;"></iframe>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Bootstrap and dependencies -->
@@ -536,55 +556,93 @@
                 });
         }
 
-            // Update system info from backend
-            function updateStats() {
-                console.log('Fetching system stats...');
-                
-                fetch('./system_info.php')
-                    .then(response => {
-                        console.log('Response status:', response.status);
-                        return response.json().catch(error => {
-                            console.error('Error parsing JSON:', error);
-                            throw new Error('Invalid JSON response');
-                        });
-                    })
-                    .then(data => {
-                        console.log('Received data:', data);
-                        
-                        // Check if there's an error in the data
-                        if (data.error) {
-                            console.error('Error in data:', data.message);
-                            throw new Error(data.message);
-                        }
-                        
-                        // Update the DOM elements
-                        document.getElementById('dullbox-uptime').textContent = data.uptime || 'N/A';
-                        document.getElementById('dullbox-cpu').textContent = data.cpu_usage + '%';
-                        document.getElementById('dullbox-memory').textContent = 
-                            data.memory_usage + '% of ' + data.memory_total + 'GB';
-                        
-                        // Update timestamp
-                        document.getElementById('last-updated').textContent = new Date().toLocaleString();
-                    })
-                    .catch(error => {
-                        console.error('Error updating stats:', error);
-                        document.getElementById('dullbox-uptime').textContent = 'Error: ' + error.message;
-                        document.getElementById('dullbox-cpu').textContent = 'Error';
-                        document.getElementById('dullbox-memory').textContent = 'Error';
+        // Update system info from backend
+        function updateStats() {
+            console.log('Fetching system stats...');
+            
+            fetch('./system_info.php')
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    return response.json().catch(error => {
+                        console.error('Error parsing JSON:', error);
+                        throw new Error('Invalid JSON response');
                     });
+                })
+                .then(data => {
+                    console.log('Received data:', data);
+                    
+                    // Check if there's an error in the data
+                    if (data.error) {
+                        console.error('Error in data:', data.message);
+                        throw new Error(data.message);
+                    }
+                    
+                    // Update the DOM elements
+                    document.getElementById('dullbox-uptime').textContent = data.uptime || 'N/A';
+                    document.getElementById('dullbox-cpu').textContent = data.cpu_usage + '%';
+                    document.getElementById('dullbox-memory').textContent = 
+                        data.memory_usage + '% of ' + data.memory_total + 'GB';
+                    
+                    // Update timestamp
+                    document.getElementById('last-updated').textContent = new Date().toLocaleString();
+                })
+                .catch(error => {
+                    console.error('Error updating stats:', error);
+                    document.getElementById('dullbox-uptime').textContent = 'Error: ' + error.message;
+                    document.getElementById('dullbox-cpu').textContent = 'Error';
+                    document.getElementById('dullbox-memory').textContent = 'Error';
+                });
+        }
+
+        function openWebSSH(host, username) {
+            const hostUserMap = {
+                '192.168.1.19': 'suzy',    // Your PC
+                '192.168.1.21': 'fuzz',    // Raspberry Pi 3  
+                '192.168.1.53': 'snooze',  // Laptop
+                '192.168.1.66': 'kong',    // Pi Zero 2W
+                '192.168.1.90': 'root',    // Proxmox host
+                '192.168.1.91': 'root',    // Webserver container
+                '192.168.1.92': 'root',    // Gitea container
+                '192.168.1.93': 'root',    // Syncthing container
+                '192.168.1.94': 'root'     // Debian12 VM
+            };
+            
+            username = username || hostUserMap[host] || 'root';
+            
+            // Update modal title with connection info
+            document.getElementById('terminal-title').textContent = `SSH Terminal - Connect to ${username}@${host}`;
+            
+            // For webserver container (local), just open terminal
+            if (host === '192.168.1.91') {
+                document.getElementById('terminalFrame').src = `http://192.168.1.91:2222`;
+                $('#terminalModal').modal('show');
+                showLocalInstructions();
+            } else {
+                // For remote hosts, show connection instructions
+                document.getElementById('terminalFrame').src = `http://192.168.1.91:2222`;
+                $('#terminalModal').modal('show');
+                showConnectionInstructions(host, username);
             }
+            
+            // Clean up when modal is closed
+            $('#terminalModal').on('hidden.bs.modal', function () {
+                document.getElementById('terminalFrame').src = '';
+                // Remove connection instructions
+                const instructions = document.getElementById('connection-instructions');
+                if (instructions) {
+                    instructions.remove();
+                }
+                $(this).off('hidden.bs.modal');
+            });
+        }
 
-            // Call the function initially and set up an interval
-            updateStats();
-            setInterval(updateStats, 60000);  // Update every 60 seconds
 
-        // Call device status check on load and then every 30 seconds
-        checkDeviceStatus();
-        setInterval(checkDeviceStatus, 30000);
-
-        // Call stats update on load and then every 60 seconds
+        // Initialize functions
         updateStats();
-        setInterval(updateStats, 60000);
+        setInterval(updateStats, 60000);  // Update every 60 seconds
+
+        checkDeviceStatus();
+        setInterval(checkDeviceStatus, 30000);  // Update every 30 seconds
     </script>
 </body>
 
