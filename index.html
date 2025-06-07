@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home Network Dashboard</title>
+    <title>HomeTown</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
@@ -381,10 +382,28 @@
         </section>
 
         <section class="section">
-            <h2 class="section-header">Dullbox</h2>
+            <div class="section-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="margin: 0;">Dullbox</h2>
+                <div class="actions-container" style="margin: 0;">
+                    <div class="action-button">
+                        <a href="https://192.168.1.90:8006" target="_blank" class="button">
+                            <i class="fas fa-server mr-2"></i>Proxmox UI
+                        </a>
+                    </div>
+                    <div class="action-button">
+                        <a href="http://192.168.1.91:8080" target="_blank" class="button">
+                            <i class="fas fa-folder mr-2"></i>WebDAV
+                        </a>
+                    </div>
+                    <div class="action-button">
+                        <a href="http://192.168.1.91/phpsysinfo/" class="button" target="_blank">
+                            <i class="fas fa-info-circle mr-2"></i>System Info
+                        </a>
+                    </div>
+                </div>
+            </div>
 
             <!-- Containers Section -->
-            <h3 class="mt-4 mb-3">Core Services</h3>
             <div class="container-cards">
                 <!-- Webserver Container -->
                 <div class="container-card">
@@ -434,7 +453,7 @@
         </section>
 
         <section class="section">
-            <h2 class="section-header">Media Server</h2>
+            <div class="cyber-line-reversed"></div>
             <div class="container-cards">
                 <!-- Jellyfin Container -->
                 <div class="container-card">
@@ -450,85 +469,79 @@
 
                 <!-- qBittorrent Container -->
                 <div class="container-card">
-                    <h3><span class="status-indicator" data-device-ip="192.168.1.105"></span>qBittorrent</h3>
-                    <div class="ip-address">192.168.1.105</div>
-                    <a href="http://192.168.1.105:8080" target="_blank" class="button">
+                    <h3><span class="status-indicator" data-device-ip="192.168.1.95"></span>qBittorrent</h3>
+                    <div class="ip-address">192.168.1.95</div>
+                    <a href="http://192.168.1.95:8080" target="_blank" class="button">
                         <i class="fas fa-download mr-1"></i>UI
                     </a>
-                    <button onclick="openWebSSH('192.168.1.105', 'root')" class="button">
+                    <button onclick="openWebSSH('192.168.1.95', 'root')" class="button">
                         <i class="fas fa-terminal mr-1"></i>SSH
                     </button>
                 </div>
 
-                <!-- Sonarr Container -->
+                <!-- Jackett Container -->
                 <div class="container-card">
-                    <h3><span class="status-indicator" data-device-ip="192.168.1.106"></span>Sonarr</h3>
-                    <div class="ip-address">192.168.1.106</div>
-                    <a href="http://192.168.1.106:8989" target="_blank" class="button">
+                    <h3><span class="status-indicator" data-device-ip="192.168.1.100"></span>Jackett</h3>
+                    <div class="ip-address">192.168.1.100</div>
+                    <a href="http://192.168.1.100:9117" target="_blank" class="button">
+                        <i class="fas fa-download mr-1"></i>UI
+                    </a>
+                    <button onclick="openWebSSH('192.168.1.100', 'root')" class="button">
+                        <i class="fas fa-terminal mr-1"></i>SSH
+                    </button>
+                </div>
+  
+                <!-- 
+                <div class="container-card">
+                    <h3><span class="status-indicator" data-device-ip="192.168.1.96"></span>Sonarr</h3>
+                    <div class="ip-address">192.168.1.96</div>
+                    <a href="http://192.168.1.96:8989" target="_blank" class="button">
                         <i class="fas fa-tv mr-1"></i>UI
                     </a>
-                    <button onclick="openWebSSH('192.168.1.106', 'root')" class="button">
+                    <button onclick="openWebSSH('192.168.1.96', 'root')" class="button">
                         <i class="fas fa-terminal mr-1"></i>SSH
                     </button>
                 </div>
 
-                <!-- Radarr Container -->
+          
                 <div class="container-card">
-                    <h3><span class="status-indicator" data-device-ip="192.168.1.107"></span>Radarr</h3>
-                    <div class="ip-address">192.168.1.107</div>
-                    <a href="http://192.168.1.107:7878" target="_blank" class="button">
+                    <h3><span class="status-indicator" data-device-ip="192.168.1.97"></span>Radarr</h3>
+                    <div class="ip-address">192.168.1.97</div>
+                    <a href="http://192.168.97:7878" target="_blank" class="button">
                         <i class="fas fa-film mr-1"></i>UI
                     </a>
-                    <button onclick="openWebSSH('192.168.1.107', 'root')" class="button">
+                    <button onclick="openWebSSH('192.168.1.97', 'root')" class="button">
                         <i class="fas fa-terminal mr-1"></i>SSH
                     </button>
                 </div>
 
-                <!-- Prowlarr Container -->
+  
                 <div class="container-card">
-                    <h3><span class="status-indicator" data-device-ip="192.168.1.108"></span>Prowlarr</h3>
-                    <div class="ip-address">192.168.1.108</div>
-                    <a href="http://192.168.1.108:9696" target="_blank" class="button">
+                    <h3><span class="status-indicator" data-device-ip="192.168.1.98"></span>Prowlarr</h3>
+                    <div class="ip-address">192.168.1.98</div>
+                    <a href="http://192.168.1.98:9696" target="_blank" class="button">
                         <i class="fas fa-search mr-1"></i>UI
                     </a>
-                    <button onclick="openWebSSH('192.168.1.108', 'root')" class="button">
+                    <button onclick="openWebSSH('192.168.1.98', 'root')" class="button">
                         <i class="fas fa-terminal mr-1"></i>SSH
                     </button>
                 </div>
 
-                <!-- Jellyseerr Container -->
+                 
                 <div class="container-card">
-                    <h3><span class="status-indicator" data-device-ip="192.168.1.109"></span>Jellyseerr</h3>
-                    <div class="ip-address">192.168.1.109</div>
-                    <a href="http://192.168.1.109:5055" target="_blank" class="button">
+                    <h3><span class="status-indicator" data-device-ip="192.168.1.99"></span>Jellyseerr</h3>
+                    <div class="ip-address">192.168.1.99</div>
+                    <a href="http://192.168.1.99:5055" target="_blank" class="button">
                         <i class="fas fa-user-plus mr-1"></i>UI
                     </a>
-                    <button onclick="openWebSSH('192.168.1.109', 'root')" class="button">
+                    <button onclick="openWebSSH('192.168.1.99', 'root')" class="button">
                         <i class="fas fa-terminal mr-1"></i>SSH
                     </button>
                 </div>
+                -->
+  
             </div>
         </section>
-            
-        <div class="server-details">
-            <!-- Quick Actions - Now Horizontally Aligned -->
-            <div class="actions-container">
-                <div class="action-button">
-                    <a href="https://192.168.1.90:8006" target="_blank" class="button">
-                        <i class="fas fa-server mr-2"></i>Proxmox UI
-                    </a>
-                </div>
-                <div class="action-button">
-                    <a href="http://192.168.1.91:8080" target="_blank" class="button">
-                        <i class="fas fa-folder mr-2"></i>WebDAV
-                    </a>
-                </div>
-                <div class="action-button">
-                    <a href="http://192.168.1.91/phpsysinfo/" class="button" target="_blank">
-                        <i class="fas fa-info-circle mr-2"></i>System Info
-                    </a>
-                </div>
-            </div>
             
             <!-- Server Statistics Container - Now with Horizontal Stats -->
             <div class="stats-container">
@@ -604,11 +617,12 @@
             // Media server containers
             const mediaDevices = [
                 { ip: '192.168.1.94', name: 'Jellyfin' },
-                { ip: '192.168.1.105', name: 'qBittorrent' },
-                { ip: '192.168.1.106', name: 'Sonarr' },
-                { ip: '192.168.1.107', name: 'Radarr' },
-                { ip: '192.168.1.108', name: 'Prowlarr' },
-                { ip: '192.168.1.109', name: 'Jellyseerr' }
+                { ip: '192.168.1.95', name: 'qBittorrent' },
+                { ip: '192.168.1.100', name: 'Jackett' },
+                { ip: '192.168.1.96', name: 'Sonarr' },
+                { ip: '192.168.1.97', name: 'Radarr' },
+                { ip: '192.168.1.98', name: 'Prowlarr' },
+                { ip: '192.168.1.99', name: 'Jellyseerr' }
             ];
             
             // Combine all devices for the status check
@@ -692,11 +706,12 @@
                 '192.168.1.93': 'root',    // Syncthing container
                 '192.168.1.94': 'root',    // Jellyfin container
                 '192.168.1.104': 'debra',  // Debian12 VM
-                '192.168.1.105': 'root',   // qBittorrent container
-                '192.168.1.106': 'root',   // Sonarr container
-                '192.168.1.107': 'root',   // Radarr container
-                '192.168.1.108': 'root',   // Prowlarr container
-                '192.168.1.109': 'root'    // Jellyseerr container
+                '192.168.1.95': 'root',   // qBittorrent container
+                '192.168.1.96': 'root',   // Sonarr container
+                '192.168.1.97': 'root',   // Radarr container
+                '192.168.1.98': 'root',   // Prowlarr container
+                '192.168.1.99': 'root',    // Jellyseerr container
+                '192.168.1.100': 'root'    // Jackett container
             };
             
             username = username || hostUserMap[host] || 'root';
