@@ -296,6 +296,185 @@
             }
         }
 
+        /* Enhanced File Manager Styles */
+        .file-manager-container {
+            display: flex;
+            gap: 20px;
+            min-height: 500px;
+        }
+
+        .file-panel {
+            background-color: var(--card-color);
+            border: 1px solid rgba(255, 119, 0, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        #downloadsPanel {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .destinations-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            min-width: 350px;
+        }
+
+        .destination-panel {
+            flex: 1;
+        }
+
+        .panel-title {
+            color: var(--primary-color);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 119, 0, 0.3);
+            padding-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .current-path {
+            font-size: 0.8rem;
+            color: #aaa;
+            font-weight: normal;
+        }
+
+        .directory-content {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .file-list, .file-browser {
+            max-height: 200px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            margin: 5px 0;
+            background-color: rgba(255, 119, 0, 0.1);
+            border: 1px solid rgba(255, 119, 0, 0.3);
+            border-radius: 4px;
+            cursor: grab;
+            transition: all 0.3s ease;
+        }
+
+        .file-item:hover {
+            background-color: rgba(255, 119, 0, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .file-item.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+        }
+
+        .file-item.selected {
+            background-color: rgba(0, 255, 255, 0.2);
+            border-color: var(--primary-color);
+        }
+
+        .directory-item {
+            display: flex;
+            align-items: center;
+            padding: 6px 8px;
+            margin: 2px 0;
+            background-color: rgba(0, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .directory-item:hover {
+            background-color: rgba(0, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .directory-item.drop-target {
+            background-color: rgba(255, 119, 0, 0.3);
+            border-color: var(--title-color);
+        }
+
+        .file-checkbox {
+            margin-right: 10px;
+        }
+
+        .file-name {
+            flex: 1;
+            color: var(--text-color);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+        }
+
+        .file-size {
+            color: #aaa;
+            font-size: 0.8rem;
+            margin-left: 10px;
+        }
+
+        .drop-zone {
+            border: 2px dashed rgba(255, 119, 0, 0.5);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            color: #aaa;
+            transition: all 0.3s ease;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .drop-zone.drag-over {
+            border-color: var(--primary-color);
+            background-color: rgba(0, 255, 255, 0.1);
+            color: var(--primary-color);
+        }
+
+        .drop-zone i {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .navigation-bar {
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 119, 0, 0.3);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .loading-indicator {
+            text-align: center;
+            color: #aaa;
+            padding: 20px;
+        }
+
+        .empty-directory {
+            text-align: center;
+            color: #666;
+            padding: 15px;
+            font-style: italic;
+        }
+
         /* Responsive Adjustments */
         @media (max-width: 768px) {
             .cards {
@@ -309,6 +488,15 @@
             }
             .actions-container {
                 flex-direction: column;
+            }
+            .file-manager-container {
+                flex-direction: column;
+            }
+            .destinations-panel {
+                flex-direction: row;
+            }
+            .file-list, .file-browser {
+                max-height: 150px;
             }
         }
     </style>
@@ -474,12 +662,15 @@
                     <a href="http://192.168.1.95:8080" target="_blank" class="button">
                         <i class="fas fa-download mr-1"></i>UI
                     </a>
+                    <button onclick="openFileManager()" class="button">
+                        <i class="fas fa-folder-open mr-1"></i>Transfer
+                    </button>
                     <button onclick="openWebSSH('192.168.1.95', 'root')" class="button">
                         <i class="fas fa-terminal mr-1"></i>SSH
                     </button>
                 </div>
 
-                <!-- Jackett Container -->
+                <!-- Jackett Container
                 <div class="container-card">
                     <h3><span class="status-indicator" data-device-ip="192.168.1.100"></span>Jackett</h3>
                     <div class="ip-address">192.168.1.100</div>
@@ -490,8 +681,8 @@
                         <i class="fas fa-terminal mr-1"></i>SSH
                     </button>
                 </div>
-  
-                <!-- 
+
+
                 <div class="container-card">
                     <h3><span class="status-indicator" data-device-ip="192.168.1.96"></span>Sonarr</h3>
                     <div class="ip-address">192.168.1.96</div>
@@ -585,6 +776,109 @@
                 </div>
                 <div class="modal-body p-0">
                     <iframe id="terminalFrame" style="width: 100%; height: 40vh; border: none;"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced File Manager Modal with Directory Navigation -->
+    <div class="modal fade" id="fileManagerModal" tabindex="-1" role="dialog" aria-labelledby="fileManagerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content" style="background-color: rgba(10, 10, 10, 0.95); border: 1px solid var(--title-color);">
+                <div class="modal-header" style="border-bottom: 1px solid var(--title-color);">
+                    <h5 class="modal-title" id="fileManagerModalLabel" style="color: var(--primary-color);">
+                        <i class="fas fa-folder-open mr-2"></i>Media File Manager
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: var(--primary-color);">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body p-3">
+                    <div class="file-manager-container">
+                        <!-- Left Panel - Downloads -->
+                        <div class="file-panel" id="downloadsPanel">
+                            <h4 class="panel-title">
+                                <i class="fas fa-download mr-2"></i>Downloads
+                                <button onclick="refreshDownloads()" class="btn btn-sm btn-outline-primary ml-2">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </h4>
+                            <div class="file-list" id="downloadsList">
+                                <div class="loading-indicator">Loading files...</div>
+                            </div>
+                        </div>
+
+                        <!-- Right Panel - Destinations -->
+                        <div class="destinations-panel">
+                            <!-- Movies Panel -->
+                            <div class="file-panel destination-panel" id="moviesPanel" data-destination="movies">
+                                <h4 class="panel-title">
+                                    <i class="fas fa-film mr-2"></i>Movies
+                                    <button onclick="refreshMovies()" class="btn btn-sm btn-outline-primary ml-2">
+                                        <i class="fas fa-sync-alt"></i>
+                                    </button>
+                                </h4>
+                                <div class="directory-content">
+                                    <div class="drop-zone" data-destination="movies" data-path="/mnt/media/Movies">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <p>Drop movie files here</p>
+                                    </div>
+                                    <div class="file-browser" id="moviesBrowser">
+                                        <div class="loading-indicator">Loading...</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- TV Shows Panel -->
+                            <div class="file-panel destination-panel" id="showsPanel" data-destination="shows">
+                                <h4 class="panel-title">
+                                    <i class="fas fa-tv mr-2"></i>TV Shows
+                                    <button onclick="refreshShows()" class="btn btn-sm btn-outline-primary ml-2">
+                                        <i class="fas fa-sync-alt"></i>
+                                    </button>
+                                    <span class="current-path" id="showsCurrentPath">/Shows</span>
+                                </h4>
+                                <div class="directory-content">
+                                    <div class="drop-zone" data-destination="shows" data-path="/mnt/media/Shows">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <p>Drop TV show files here</p>
+                                    </div>
+                                    <div class="navigation-bar" id="showsNavigation" style="display: none;">
+                                        <button onclick="navigateToParent('shows')" class="btn btn-sm btn-outline-secondary">
+                                            <i class="fas fa-arrow-left mr-1"></i>Back
+                                        </button>
+                                        <button onclick="navigateToRoot('shows')" class="btn btn-sm btn-outline-secondary ml-2">
+                                            <i class="fas fa-home mr-1"></i>Root
+                                        </button>
+                                    </div>
+                                    <div class="file-browser" id="showsBrowser">
+                                        <div class="loading-indicator">Loading...</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="action-buttons mt-3">
+                        <button onclick="moveSelectedFiles('movies')" class="button" id="moveToMoviesBtn" disabled>
+                            <i class="fas fa-film mr-2"></i>Move to Movies
+                        </button>
+                        <button onclick="moveSelectedFiles('shows')" class="button" id="moveToShowsBtn" disabled>
+                            <i class="fas fa-tv mr-2"></i>Move to TV Shows
+                        </button>
+                        <button onclick="selectAll()" class="button">
+                            <i class="fas fa-check-square mr-2"></i>Select All
+                        </button>
+                        <button onclick="deselectAll()" class="button">
+                            <i class="fas fa-square mr-2"></i>Deselect All
+                        </button>
+                    </div>
+
+                    <!-- Status Area -->
+                    <div class="status-area mt-3" id="statusArea" style="display: none;">
+                        <div class="alert alert-info" id="statusMessage"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -743,6 +1037,398 @@
             });
         }
 
+        // Enhanced File Manager with Directory Navigation
+        let selectedFiles = new Set();
+        let currentShowsPath = '/mnt/media/Shows';
+        let showsPathStack = ['/mnt/media/Shows'];
+
+        function openFileManager() {
+            $('#fileManagerModal').modal('show');
+            refreshDownloads();
+            refreshMovies();
+            refreshShows();
+        }
+
+        function refreshDownloads() {
+            const downloadsList = document.getElementById('downloadsList');
+            downloadsList.innerHTML = '<div class="loading-indicator">Loading files...</div>';
+            
+            fetch('file_manager.php?action=list')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayFiles(data.files);
+                    } else {
+                        downloadsList.innerHTML = `<div class="alert alert-danger">Error: ${data.error}</div>`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching files:', error);
+                    downloadsList.innerHTML = '<div class="alert alert-danger">Failed to load files</div>';
+                });
+        }
+
+        function refreshMovies() {
+            const moviesBrowser = document.getElementById('moviesBrowser');
+            moviesBrowser.innerHTML = '<div class="loading-indicator">Loading...</div>';
+            
+            fetch('file_manager.php?action=browse&type=movies&path=/mnt/media/Movies')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayDirectoryContents(data, 'moviesBrowser', false);
+                    } else {
+                        moviesBrowser.innerHTML = `<div class="alert alert-danger">Error: ${data.error}</div>`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching movies:', error);
+                    moviesBrowser.innerHTML = '<div class="alert alert-danger">Failed to load movies</div>';
+                });
+        }
+
+        function refreshShows() {
+            const showsBrowser = document.getElementById('showsBrowser');
+            showsBrowser.innerHTML = '<div class="loading-indicator">Loading...</div>';
+            
+            const pathDisplay = document.getElementById('showsCurrentPath');
+            const relativePath = currentShowsPath.replace('/mnt/media', '');
+            pathDisplay.textContent = relativePath;
+            
+            // Show/hide navigation buttons
+            const navigation = document.getElementById('showsNavigation');
+            navigation.style.display = currentShowsPath !== '/mnt/media/Shows' ? 'block' : 'none';
+            
+            // Update drop zone target path
+            const dropZone = document.querySelector('[data-destination="shows"] .drop-zone');
+            dropZone.setAttribute('data-path', currentShowsPath);
+            
+            fetch(`file_manager.php?action=browse&type=shows&path=${encodeURIComponent(currentShowsPath)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayDirectoryContents(data, 'showsBrowser', true);
+                    } else {
+                        showsBrowser.innerHTML = `<div class="alert alert-danger">Error: ${data.error}</div>`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching shows:', error);
+                    showsBrowser.innerHTML = '<div class="alert alert-danger">Failed to load shows</div>';
+                });
+        }
+
+        function displayFiles(files) {
+            const downloadsList = document.getElementById('downloadsList');
+            
+            if (files.length === 0) {
+                downloadsList.innerHTML = '<div class="empty-directory">No files in downloads folder</div>';
+                return;
+            }
+            
+            downloadsList.innerHTML = files.map(file => `
+                <div class="file-item" draggable="true" data-filename="${file.name}">
+                    <input type="checkbox" class="file-checkbox" onchange="toggleFileSelection('${file.name}')">
+                    <i class="fas fa-file-video mr-2" style="color: var(--primary-color);"></i>
+                    <span class="file-name">${file.name}</span>
+                    <span class="file-size">${file.size}</span>
+                </div>
+            `).join('');
+            
+            setupDragAndDrop();
+        }
+
+        function displayDirectoryContents(data, containerId, allowNavigation) {
+            const container = document.getElementById(containerId);
+            
+            if (data.directories.length === 0 && data.files.length === 0) {
+                container.innerHTML = '<div class="empty-directory">Empty directory</div>';
+                return;
+            }
+            
+            let html = '';
+            
+            // Show directories first
+            if (allowNavigation) {
+                data.directories.forEach(dir => {
+                    html += `
+                        <div class="directory-item" onclick="navigateToDirectory('${dir.name}')" data-path="${dir.path}">
+                            <i class="fas fa-folder mr-2" style="color: var(--secondary-color);"></i>
+                            <span class="file-name">${dir.name}</span>
+                            <span class="file-size">${dir.fileCount} files</span>
+                        </div>
+                    `;
+                });
+            }
+            
+            // Show files
+            data.files.forEach(file => {
+                html += `
+                    <div class="directory-item">
+                        <i class="fas fa-file-video mr-2" style="color: #aaa;"></i>
+                        <span class="file-name">${file.name}</span>
+                        <span class="file-size">${file.size}</span>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            
+            // Set up drop targets for directories
+            if (allowNavigation) {
+                setupDirectoryDropTargets();
+            }
+        }
+
+        function navigateToDirectory(dirName) {
+            const newPath = currentShowsPath + '/' + dirName;
+            showsPathStack.push(currentShowsPath);
+            currentShowsPath = newPath;
+            refreshShows();
+        }
+
+        function navigateToParent() {
+            if (showsPathStack.length > 1) {
+                currentShowsPath = showsPathStack.pop();
+                refreshShows();
+            }
+        }
+
+        function navigateToRoot() {
+            currentShowsPath = '/mnt/media/Shows';
+            showsPathStack = ['/mnt/media/Shows'];
+            refreshShows();
+        }
+
+        function setupDragAndDrop() {
+            // Make file items draggable
+            document.querySelectorAll('.file-item').forEach(item => {
+                item.addEventListener('dragstart', handleDragStart);
+                item.addEventListener('dragend', handleDragEnd);
+            });
+            
+            // Setup drop zones
+            document.querySelectorAll('.drop-zone').forEach(zone => {
+                zone.addEventListener('dragover', handleDragOver);
+                zone.addEventListener('dragenter', handleDragEnter);
+                zone.addEventListener('dragleave', handleDragLeave);
+                zone.addEventListener('drop', handleDrop);
+            });
+        }
+
+        function setupDirectoryDropTargets() {
+            document.querySelectorAll('.directory-item[data-path]').forEach(item => {
+                item.addEventListener('dragover', handleDragOver);
+                item.addEventListener('dragenter', (e) => {
+                    e.preventDefault();
+                    e.target.closest('.directory-item').classList.add('drop-target');
+                });
+                item.addEventListener('dragleave', (e) => {
+                    if (!e.target.closest('.directory-item').contains(e.relatedTarget)) {
+                        e.target.closest('.directory-item').classList.remove('drop-target');
+                    }
+                });
+                item.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    const dropTarget = e.target.closest('.directory-item');
+                    dropTarget.classList.remove('drop-target');
+                    
+                    const filename = e.dataTransfer.getData('text/plain');
+                    const targetPath = dropTarget.dataset.path;
+                    
+                    if (filename && targetPath) {
+                        moveFileToPath(filename, targetPath);
+                    }
+                });
+            });
+        }
+
+        function handleDragStart(e) {
+            const filename = e.target.dataset.filename;
+            e.dataTransfer.setData('text/plain', filename);
+            e.target.classList.add('dragging');
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+        }
+
+        function handleDragEnter(e) {
+            e.preventDefault();
+            const dropZone = e.target.closest('.drop-zone');
+            if (dropZone) {
+                dropZone.classList.add('drag-over');
+            }
+        }
+
+        function handleDragLeave(e) {
+            const dropZone = e.target.closest('.drop-zone');
+            if (dropZone && !dropZone.contains(e.relatedTarget)) {
+                dropZone.classList.remove('drag-over');
+            }
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            const dropZone = e.target.closest('.drop-zone');
+            if (dropZone) {
+                dropZone.classList.remove('drag-over');
+                
+                const filename = e.dataTransfer.getData('text/plain');
+                const targetPath = dropZone.dataset.path;
+                
+                if (filename && targetPath) {
+                    moveFileToPath(filename, targetPath);
+                }
+            }
+        }
+
+        function moveFileToPath(filename, targetPath) {
+            showStatus(`Moving ${filename} to ${targetPath}...`);
+            
+            fetch('file_manager.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    action: 'move_to_path',
+                    filename: filename,
+                    target_path: targetPath
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showStatus(`✅ Successfully moved ${filename}`, 'success');
+                    refreshDownloads();
+                    refreshMovies();
+                    refreshShows();
+                    selectedFiles.delete(filename);
+                    updateActionButtons();
+                } else {
+                    showStatus(`❌ Error moving ${filename}: ${data.error}`, 'error');
+                }
+            })
+            .catch(error => {
+                showStatus(`❌ Failed to move ${filename}`, 'error');
+                console.error('Error:', error);
+            });
+        }
+
+        function toggleFileSelection(filename) {
+            if (selectedFiles.has(filename)) {
+                selectedFiles.delete(filename);
+            } else {
+                selectedFiles.add(filename);
+            }
+            
+            updateFileSelection();
+            updateActionButtons();
+        }
+
+        function updateFileSelection() {
+            document.querySelectorAll('.file-item').forEach(item => {
+                const filename = item.dataset.filename;
+                const checkbox = item.querySelector('.file-checkbox');
+                
+                if (selectedFiles.has(filename)) {
+                    item.classList.add('selected');
+                    checkbox.checked = true;
+                } else {
+                    item.classList.remove('selected');
+                    checkbox.checked = false;
+                }
+            });
+        }
+
+        function updateActionButtons() {
+            const hasSelection = selectedFiles.size > 0;
+            document.getElementById('moveToMoviesBtn').disabled = !hasSelection;
+            document.getElementById('moveToShowsBtn').disabled = !hasSelection;
+        }
+
+        function selectAll() {
+            document.querySelectorAll('.file-item').forEach(item => {
+                selectedFiles.add(item.dataset.filename);
+            });
+            updateFileSelection();
+            updateActionButtons();
+        }
+
+        function deselectAll() {
+            selectedFiles.clear();
+            updateFileSelection();
+            updateActionButtons();
+        }
+
+        function moveSelectedFiles(destination) {
+            if (selectedFiles.size === 0) return;
+            
+            const files = Array.from(selectedFiles);
+            const targetPath = destination === 'movies' ? '/mnt/media/Movies' : currentShowsPath;
+            
+            moveMultipleFilesToPath(files, targetPath);
+        }
+
+        function moveMultipleFilesToPath(files, targetPath) {
+            showStatus(`Moving ${files.length} file(s) to ${targetPath}...`);
+            
+            fetch('file_manager.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    action: 'move_multiple_to_path',
+                    files: files,
+                    target_path: targetPath
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const moved = data.moved || files.length;
+                    showStatus(`✅ Successfully moved ${moved} file(s)`, 'success');
+                    refreshDownloads();
+                    refreshMovies();
+                    refreshShows();
+                    selectedFiles.clear();
+                    updateActionButtons();
+                } else {
+                    showStatus(`❌ Error moving files: ${data.error}`, 'error');
+                }
+            })
+            .catch(error => {
+                showStatus(`❌ Failed to move files`, 'error');
+                console.error('Error:', error);
+            });
+        }
+
+        function showStatus(message, type = 'info') {
+            const statusArea = document.getElementById('statusArea');
+            const statusMessage = document.getElementById('statusMessage');
+            
+            statusMessage.className = `alert alert-${type}`;
+            statusMessage.textContent = message;
+            statusArea.style.display = 'block';
+            
+            setTimeout(() => {
+                statusArea.style.display = 'none';
+            }, 3000);
+        }
+
+        // Clean up when modal is closed
+        $('#fileManagerModal').on('hidden.bs.modal', function () {
+            selectedFiles.clear();
+            updateActionButtons();
+            currentShowsPath = '/mnt/media/Shows';
+            showsPathStack = ['/mnt/media/Shows'];
+        });
 
         // Initialize functions
         updateStats();
