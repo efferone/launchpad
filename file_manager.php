@@ -28,37 +28,77 @@ function executeSSHCommand($command) {
 function listDownloadFiles() {
     global $DOWNLOADS_PATH;
     
-    $command = "find $DOWNLOADS_PATH -maxdepth 1 -type f \( -name '*.mkv' -o -name '*.mp4' -o -name '*.avi' -o -name '*.mov' -o -name '*.wmv' -o -name '*.flv' -o -name '*.webm' \) -exec stat -c '%n|%s' {} \;";
+    $escapedPath = escapeshellarg($DOWNLOADS_PATH);
     
-    $result = executeSSHCommand($command);
+    // Get video files
+    $fileCommand = "find $escapedPath -maxdepth 1 -type f \( -name '*.mkv' -o -name '*.mp4' -o -name '*.avi' -o -name '*.mov' -o -name '*.wmv' -o -name '*.flv' -o -name '*.webm' \) -exec stat -c '%n|%s|file' {} \;";
+    $fileResult = executeSSHCommand($fileCommand);
     
-    if (!$result['success']) {
-        return ['success' => false, 'error' => 'Failed to list files'];
-    }
+    // Get directories
+    $dirCommand = "find $escapedPath -maxdepth 1 -type d ! -path $escapedPath -exec sh -c 'echo \"{}|$(du -sb \"{}\" | cut -f1)|dir\"' \;";
+    $dirResult = executeSSHCommand($dirCommand);
     
-    $files = [];
-    foreach ($result['output'] as $line) {
-        if (trim($line)) {
-            $parts = explode('|', $line);
-            if (count($parts) === 2) {
-                $fullPath = $parts[0];
-                $size = intval($parts[1]);
-                $filename = basename($fullPath);
-                
-                $files[] = [
-                    'name' => $filename,
-                    'size' => formatFileSize($size),
-                    'fullPath' => $fullPath
-                ];
+    $items = [];
+    
+    // Process files
+    if ($fileResult['success']) {
+        foreach ($fileResult['output'] as $line) {
+            if (trim($line)) {
+                $parts = explode('|', $line);
+                if (count($parts) === 3) {
+                    $fullPath = $parts[0];
+                    $size = intval($parts[1]);
+                    $filename = basename($fullPath);
+                    
+                    $items[] = [
+                        'name' => $filename,
+                        'size' => formatFileSize($size),
+                        'fullPath' => $fullPath,
+                        'type' => 'file',
+                        'isDirectory' => false
+                    ];
+                }
             }
         }
     }
     
-    usort($files, function($a, $b) {
+    // Process directories
+    if ($dirResult['success']) {
+        foreach ($dirResult['output'] as $line) {
+            if (trim($line)) {
+                $parts = explode('|', $line);
+                if (count($parts) === 3) {
+                    $fullPath = $parts[0];
+                    $size = intval($parts[1]);
+                    $dirname = basename($fullPath);
+                    
+                    // Count video files in directory
+                    $countCommand = "find " . escapeshellarg($fullPath) . " -type f \( -name '*.mkv' -o -name '*.mp4' -o -name '*.avi' -o -name '*.mov' -o -name '*.wmv' -o -name '*.flv' -o -name '*.webm' \) | wc -l";
+                    $countResult = executeSSHCommand($countCommand);
+                    $fileCount = $countResult['success'] ? intval($countResult['output'][0] ?? 0) : 0;
+                    
+                    $items[] = [
+                        'name' => $dirname,
+                        'size' => formatFileSize($size) . " ($fileCount files)",
+                        'fullPath' => $fullPath,
+                        'type' => 'directory',
+                        'isDirectory' => true,
+                        'fileCount' => $fileCount
+                    ];
+                }
+            }
+        }
+    }
+    
+    // Sort: directories first, then files, alphabetically within each group
+    usort($items, function($a, $b) {
+        if ($a['isDirectory'] !== $b['isDirectory']) {
+            return $b['isDirectory'] - $a['isDirectory']; // Directories first
+        }
         return strcmp($a['name'], $b['name']);
     });
     
-    return ['success' => true, 'files' => $files];
+    return ['success' => true, 'files' => $items];
 }
 
 function browseDirectory($path, $type) {
@@ -138,12 +178,12 @@ function moveFileToPath($filename, $targetPath) {
     $safeTargetPath = escapeshellarg($targetPath);
     $sourceFile = escapeshellarg("$DOWNLOADS_PATH/" . basename($filename));
     
-    // Check if source file exists
-    $checkCommand = "test -f $sourceFile && echo 'exists'";
+    // Check if source exists (file or directory)
+    $checkCommand = "test -e $sourceFile && echo 'exists'";
     $checkResult = executeSSHCommand($checkCommand);
     
     if (!$checkResult['success'] || !in_array('exists', $checkResult['output'])) {
-        return ['success' => false, 'error' => 'Source file not found'];
+        return ['success' => false, 'error' => 'Source file/directory not found'];
     }
     
     // Ensure target directory exists
@@ -154,14 +194,49 @@ function moveFileToPath($filename, $targetPath) {
         return ['success' => false, 'error' => 'Failed to create target directory'];
     }
     
-    // Move the file
+    // Move the file or directory
     $moveCommand = "mv $sourceFile $safeTargetPath/";
     $moveResult = executeSSHCommand($moveCommand);
     
     if ($moveResult['success']) {
-        return ['success' => true, 'message' => "File moved successfully"];
+        return ['success' => true, 'message' => "Item moved successfully"];
     } else {
-        return ['success' => false, 'error' => 'Failed to move file'];
+        return ['success' => false, 'error' => 'Failed to move item'];
+    }
+}
+
+function moveDirectoryToPath($dirname, $targetPath) {
+    global $DOWNLOADS_PATH;
+    
+    // Sanitize inputs
+    $safeDirname = escapeshellarg(basename($dirname));
+    $safeTargetPath = escapeshellarg($targetPath);
+    $sourceDir = escapeshellarg("$DOWNLOADS_PATH/" . basename($dirname));
+    
+    // Check if source directory exists
+    $checkCommand = "test -d $sourceDir && echo 'exists'";
+    $checkResult = executeSSHCommand($checkCommand);
+    
+    if (!$checkResult['success'] || !in_array('exists', $checkResult['output'])) {
+        return ['success' => false, 'error' => 'Source directory not found'];
+    }
+    
+    // Ensure target directory exists
+    $mkdirCommand = "mkdir -p $safeTargetPath";
+    $mkdirResult = executeSSHCommand($mkdirCommand);
+    
+    if (!$mkdirResult['success']) {
+        return ['success' => false, 'error' => 'Failed to create target directory'];
+    }
+    
+    // Move the directory
+    $moveCommand = "mv $sourceDir $safeTargetPath/";
+    $moveResult = executeSSHCommand($moveCommand);
+    
+    if ($moveResult['success']) {
+        return ['success' => true, 'message' => "Directory moved successfully"];
+    } else {
+        return ['success' => false, 'error' => 'Failed to move directory'];
     }
 }
 
@@ -200,7 +275,7 @@ function moveMultipleFilesToPath($files, $targetPath) {
     } elseif ($successCount > 0) {
         return ['success' => true, 'moved' => $successCount, 'errors' => $errors];
     } else {
-        return ['success' => false, 'error' => 'Failed to move any files: ' . implode(', ', $errors)];
+        return ['success' => false, 'error' => 'Failed to move any items: ' . implode(', ', $errors)];
     }
 }
 

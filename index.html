@@ -637,6 +637,18 @@
                         <i class="fas fa-terminal mr-1"></i>SSH
                     </button>
                 </div>
+
+                <!-- GitLab -->
+                <div class="container-card">
+                    <h3><span class="status-indicator" data-device-ip="192.168.1.104"></span>GitLab</h3>
+                    <div class="ip-address">192.168.1.101</div>
+                    <a href="http://192.168.1.101" target="_blank" class="button">
+                        <i class="fab fa-git-alt mr-1"></i>UI
+                    </a>                    
+                    <button onclick="openWebSSH('192.168.1.101', 'root')" class="button">
+                        <i class="fas fa-terminal mr-1"></i>SSH
+                    </button>
+                </div>
             </div>
         </section>
 
@@ -905,7 +917,8 @@
                 { ip: '192.168.1.91', name: 'Webserver' },
                 { ip: '192.168.1.92', name: 'Gitea' },
                 { ip: '192.168.1.93', name: 'Syncthing' },
-                { ip: '192.168.1.104', name: 'Debian12' }
+                { ip: '192.168.1.104', name: 'Debian12' },
+                { ip: '192.168.1.101', name: 'GitLab' }
             ];
 
             // Media server containers
@@ -1005,7 +1018,8 @@
                 '192.168.1.97': 'root',   // Radarr container
                 '192.168.1.98': 'root',   // Prowlarr container
                 '192.168.1.99': 'root',    // Jellyseerr container
-                '192.168.1.100': 'root'    // Jackett container
+                '192.168.1.100': 'root',    // Jackett container
+                '192.168.1.101': 'root'    // GitLab container
             };
             
             username = username || hostUserMap[host] || 'root';
@@ -1117,7 +1131,6 @@
                     showsBrowser.innerHTML = '<div class="alert alert-danger">Failed to load shows</div>';
                 });
         }
-
         function displayFiles(files) {
             const downloadsList = document.getElementById('downloadsList');
             
@@ -1126,14 +1139,19 @@
                 return;
             }
             
-            downloadsList.innerHTML = files.map(file => `
-                <div class="file-item" draggable="true" data-filename="${file.name}">
-                    <input type="checkbox" class="file-checkbox" onchange="toggleFileSelection('${file.name}')">
-                    <i class="fas fa-file-video mr-2" style="color: var(--primary-color);"></i>
-                    <span class="file-name">${file.name}</span>
-                    <span class="file-size">${file.size}</span>
-                </div>
-            `).join('');
+            downloadsList.innerHTML = files.map(file => {
+                const iconClass = file.isDirectory ? 'fas fa-folder' : 'fas fa-file-video';
+                const iconColor = file.isDirectory ? 'var(--secondary-color)' : 'var(--primary-color)';
+                
+                return `
+                    <div class="file-item ${file.isDirectory ? 'directory-item' : ''}" draggable="true" data-filename="${file.name}" data-is-directory="${file.isDirectory}">
+                        <input type="checkbox" class="file-checkbox" onchange="toggleFileSelection('${file.name}')">
+                        <i class="${iconClass} mr-2" style="color: ${iconColor};"></i>
+                        <span class="file-name">${file.name}</span>
+                        <span class="file-size">${file.size}</span>
+                    </div>
+                `;
+            }).join('');
             
             setupDragAndDrop();
         }

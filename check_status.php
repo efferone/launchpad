@@ -19,6 +19,7 @@ $devices = isset($_GET['devices']) ? json_decode($_GET['devices'], true) : [
     ['name' => 'Prowlarr', 'ip' => '192.168.1.98'],
     ['name' => 'Jellyseer', 'ip' => '192.168.1.99'],
     ['name' => 'Jackett', 'ip' => '192.168.1.100'],
+    ['name' => 'GitLab', 'ip' => '192.168.1.101'],
 ];
 
 $results = [];
