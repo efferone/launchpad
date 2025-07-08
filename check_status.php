@@ -5,21 +5,15 @@ header('Content-Type: application/json');
 $devices = isset($_GET['devices']) ? json_decode($_GET['devices'], true) : [
     ['name' => 'Main PC', 'ip' => '192.168.1.19'],
     ['name' => 'Laptop', 'ip' => '192.168.1.53'],
-    ['name' => 'Raspberry Pi', 'ip' => '192.168.1.21'],
     ['name' => 'Pi Zero 2W', 'ip' => '192.168.1.66'],
     ['name' => 'Dullbox', 'ip' => '192.168.1.90'],
     ['name' => 'Webserver', 'ip' => '192.168.1.91'],
     ['name' => 'Gitea', 'ip' => '192.168.1.92'],
     ['name' => 'Syncthing', 'ip' => '192.168.1.93'],
-    ['name' => 'Debian12', 'ip' => '192.168.1.104'],
+    ['name' => 'Debian12', 'ip' => '192.168.1.105'],
     ['name' => 'Jellyfin', 'ip' => '192.168.1.94'],
-    ['name' => 'qBittorrent', 'ip' => '192.168.1.95'],
-    ['name' => 'Sonarr', 'ip' => '192.168.1.96'],
-    ['name' => 'Radarr', 'ip' => '192.168.1.97'],
-    ['name' => 'Prowlarr', 'ip' => '192.168.1.98'],
-    ['name' => 'Jellyseer', 'ip' => '192.168.1.99'],
-    ['name' => 'Jackett', 'ip' => '192.168.1.100'],
     ['name' => 'GitLab', 'ip' => '192.168.1.101'],
+    ['name' => 'GitLab Sim', 'ip' => '192.168.1.120']
 ];
 
 $results = [];

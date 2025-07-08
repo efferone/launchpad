@@ -4,7 +4,6 @@ function checkDeviceStatus() {
     const basicDevices = [
         { ip: '192.168.1.19', name: 'Main PC' },
         { ip: '192.168.1.53', name: 'Laptop' },
-        { ip: '192.168.1.21', name: 'Raspberry Pi' },
         { ip: '192.168.1.66', name: 'Pi Zero 2W' },
         { ip: '192.168.1.90', name: 'Dullbox' }
     ];
@@ -14,8 +13,9 @@ function checkDeviceStatus() {
         { ip: '192.168.1.91', name: 'Webserver' },
         { ip: '192.168.1.92', name: 'Gitea' },
         { ip: '192.168.1.93', name: 'Syncthing' },
-        { ip: '192.168.1.104', name: 'Debian12' },
-        { ip: '192.168.1.101', name: 'GitLab' }
+        { ip: '192.168.1.105', name: 'Debian12' },
+        { ip: '192.168.1.101', name: 'GitLab' },
+        { ip: '192.168.1.120', name: 'GitLab' }
     ];
 
     // Media server containers
@@ -103,8 +103,9 @@ function openWebSSH(host, username) {
         '192.168.1.92': 'root',    // Gitea container
         '192.168.1.93': 'root',    // Syncthing container
         '192.168.1.94': 'root',    // Jellyfin container
-        '192.168.1.104': 'debra',  // Debian12 VM
-        '192.168.1.101': 'root'    // GitLab container
+        '192.168.1.105': 'debra',  // Debian12 VM
+        '192.168.1.101': 'root',    // GitLab container
+        '192.168.1.120': 'root'    // GitLab container
     };
     
     username = username || hostUserMap[host] || 'root';
