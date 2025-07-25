@@ -358,3 +358,37 @@ h3 {
         flex-direction: column;
     }
 }
+
+/* ===== MONITORING CARD METRICS ===== */
+.monitoring-summary {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+    gap: 10px;
+}
+
+.small-metric {
+    text-align: center;
+    flex: 1;
+}
+
+.small-value {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 2px;
+}
+
+.small-value.online { color: #2ecc71; }
+.small-value.warning { color: var(--title-color); }
+.small-value.error { color: #e74c3c; }
+
+.small-label {
+    font-size: 0.7rem;
+    color: #aaa;
+    text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 1px;
+}

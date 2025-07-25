@@ -278,6 +278,364 @@ async function loadAvailableModels() {
     }
 }
 
+// ===== MONITORING FUNCTIONS =====
+let monitoringData = {};
+let monitoringInterval;
+
+// Initialize monitoring when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    initMonitoring();
+});
+
+function initMonitoring() {
+    console.log('Initializing monitoring...');
+    refreshMonitoringData();
+    
+    // Auto-refresh every 2 minutes
+    monitoringInterval = setInterval(refreshMonitoringData, 120000);
+}
+
+function refreshMonitoringData() {
+    fetch('/api/monitoring_dashboard.php')
+        .then(response => response.json())
+        .then(data => {
+            monitoringData = data;
+            updateMonitoringCards(data);
+        })
+        .catch(error => {
+            console.error('Error fetching monitoring data:', error);
+            updateSentinelStatus(false);
+        });
+}
+
+function updateMonitoringCards(data) {
+    // Update sentinel status
+    updateSentinelStatus(data.status === 'online');
+    
+    // Update sentinel uptime
+    if (data.system_status && data.system_status.uptime) {
+        const uptimeMatch = data.system_status.uptime.match(/up\s+(.+?),/);
+        document.getElementById('sentinel-uptime').textContent = uptimeMatch ? uptimeMatch[1] : 'Unknown';
+    }
+    
+    // Update network overview
+    if (data.network_discovery && data.network_discovery.devices) {
+        const devices = data.network_discovery.devices;
+        const onlineDevices = devices.filter(device => device.status === 'up');
+        
+        document.getElementById('total-devices').textContent = devices.length;
+        document.getElementById('online-devices').textContent = onlineDevices.length;
+    }
+    
+    // Update security status
+    updateSecurityCard(data.security_summary);
+    
+    // Update bandwidth
+    updateBandwidthCard(data.bandwidth_data);
+}
+
+function updateSentinelStatus(online) {
+    const statusDot = document.getElementById('sentinel-status-dot');
+    const securityDot = document.getElementById('security-status-dot');
+    
+    if (online) {
+        statusDot.className = 'status-indicator online';
+        securityDot.className = 'status-indicator online';
+    } else {
+        statusDot.className = 'status-indicator offline';
+        securityDot.className = 'status-indicator offline';
+    }
+}
+
+function updateSecurityCard(securityData) {
+    const vulnCount = document.getElementById('vuln-count');
+    const lastScan = document.getElementById('last-scan-short');
+    
+    if (securityData && !securityData.error) {
+        vulnCount.textContent = securityData.vulnerability_count || '0';
+        
+        // Color code vulnerability count
+        if (securityData.vulnerability_count > 10) {
+            vulnCount.className = 'small-value error';
+        } else if (securityData.vulnerability_count > 5) {
+            vulnCount.className = 'small-value warning';
+        } else {
+            vulnCount.className = 'small-value';
+        }
+        
+        // Format scan time
+        if (securityData.scan_time) {
+            const scanDate = new Date(securityData.scan_time);
+            lastScan.textContent = scanDate.toLocaleDateString();
+        } else {
+            lastScan.textContent = 'Never';
+        }
+    } else {
+        vulnCount.textContent = '-';
+        lastScan.textContent = 'No data';
+    }
+}
+
+function updateBandwidthCard(bandwidthData) {
+    const totalRx = document.getElementById('total-rx-short');
+    const totalTx = document.getElementById('total-tx-short');
+    
+    if (bandwidthData && bandwidthData.vnstat_data && bandwidthData.vnstat_data.interfaces) {
+        const iface = bandwidthData.vnstat_data.interfaces[0];
+        const totalTraffic = iface.traffic.total;
+        
+        totalRx.textContent = formatBytesShort(totalTraffic.rx);
+        totalTx.textContent = formatBytesShort(totalTraffic.tx);
+    } else {
+        totalRx.textContent = '-';
+        totalTx.textContent = '-';
+    }
+}
+
+function formatBytesShort(bytes) {
+    if (bytes === 0) return '0B';
+    
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + sizes[i];
+}
+
+// Modal functions
+function openMonitoringModal() {
+    document.getElementById('monitoring-modal-title').textContent = 'Network Monitoring Overview';
+    generateMonitoringModalContent('overview');
+    $('#monitoringModal').modal('show');
+}
+
+function showDeviceList() {
+    document.getElementById('monitoring-modal-title').textContent = 'Network Devices';
+    generateMonitoringModalContent('devices');
+    $('#monitoringModal').modal('show');
+}
+
+function showSecurityDetails() {
+    document.getElementById('monitoring-modal-title').textContent = 'Security Status';
+    generateMonitoringModalContent('security');
+    $('#monitoringModal').modal('show');
+}
+
+function showBandwidthDetails() {
+    document.getElementById('monitoring-modal-title').textContent = 'Bandwidth & Traffic';
+    generateMonitoringModalContent('bandwidth');
+    $('#monitoringModal').modal('show');
+}
+
+function generateMonitoringModalContent(type) {
+    const content = document.getElementById('monitoring-modal-content');
+    
+    if (!monitoringData || monitoringData.status !== 'online') {
+        content.innerHTML = '<div class="alert alert-danger">LXC-Sentinel is offline or unreachable</div>';
+        return;
+    }
+    
+    switch(type) {
+        case 'overview':
+            content.innerHTML = generateOverviewContent();
+            break;
+        case 'devices':
+            content.innerHTML = generateDevicesContent();
+            break;
+        case 'security':
+            content.innerHTML = generateSecurityContent();
+            break;
+        case 'bandwidth':
+            content.innerHTML = generateBandwidthContent();
+            break;
+    }
+}
+
+function generateOverviewContent() {
+    const systemStatus = monitoringData.system_status || {};
+    const networkData = monitoringData.network_discovery || {};
+    
+    return `
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card" style="background: var(--card-color); border: 1px solid var(--title-color);">
+                    <div class="card-header" style="background: rgba(255, 119, 0, 0.1); color: var(--title-color);">
+                        <h5><i class="fas fa-server mr-2"></i>System Status</h5>
+                    </div>
+                    <div class="card-body" style="color: var(--text-color);">
+                        <p><strong>Hostname:</strong> ${systemStatus.hostname || 'Unknown'}</p>
+                        <p><strong>IP Address:</strong> ${systemStatus.ip || 'Unknown'}</p>
+                        <p><strong>Uptime:</strong> ${systemStatus.uptime || 'Unknown'}</p>
+                        <p><strong>Services:</strong></p>
+                        <ul>
+                            ${systemStatus.services ? Object.entries(systemStatus.services).map(([service, status]) => 
+                                `<li><span class="badge badge-${status === 'active' ? 'success' : 'danger'}">${service}</span> ${status}</li>`
+                            ).join('') : '<li>No service data</li>'}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card" style="background: var(--card-color); border: 1px solid var(--title-color);">
+                    <div class="card-header" style="background: rgba(255, 119, 0, 0.1); color: var(--title-color);">
+                        <h5><i class="fas fa-network-wired mr-2"></i>Network Summary</h5>
+                    </div>
+                    <div class="card-body" style="color: var(--text-color);">
+                        <p><strong>Total Devices:</strong> ${networkData.total_devices || 0}</p>
+                        <p><strong>Network:</strong> ${networkData.network || '192.168.1.0/24'}</p>
+                        <p><strong>Last Scan:</strong> ${networkData.timestamp ? new Date(networkData.timestamp).toLocaleString() : 'Unknown'}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function generateDevicesContent() {
+    const devices = monitoringData.network_discovery?.devices || [];
+    
+    if (devices.length === 0) {
+        return '<div class="alert alert-warning">No devices found</div>';
+    }
+    
+    return `
+        <div class="table-responsive">
+            <table class="table table-dark table-striped">
+                <thead style="background: var(--title-color); color: #000;">
+                    <tr>
+                        <th>Status</th>
+                        <th>IP Address</th>
+                        <th>Hostname</th>
+                        <th>Last Seen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${devices.map(device => `
+                        <tr>
+                            <td><span class="badge badge-${device.status === 'up' ? 'success' : 'danger'}">${device.status}</span></td>
+                            <td style="font-family: 'JetBrains Mono', monospace;">${device.ip}</td>
+                            <td>${device.hostname === 'Unknown' ? '<em>Unknown Device</em>' : device.hostname}</td>
+                            <td>${new Date(device.last_seen).toLocaleString()}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+}
+
+function generateSecurityContent() {
+    const securityData = monitoringData.security_summary || {};
+    
+    return `
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card" style="background: var(--card-color); border: 1px solid var(--title-color);">
+                    <div class="card-header" style="background: rgba(255, 119, 0, 0.1); color: var(--title-color);">
+                        <h5><i class="fas fa-shield-alt mr-2"></i>Security Scan Results</h5>
+                    </div>
+                    <div class="card-body" style="color: var(--text-color);">
+                        ${securityData.error ? 
+                            '<div class="alert alert-warning">No security scan data available</div>' :
+                            `
+                            <div class="row text-center">
+                                <div class="col-md-3">
+                                    <h3 class="text-${securityData.vulnerability_count > 10 ? 'danger' : securityData.vulnerability_count > 5 ? 'warning' : 'success'}">
+                                        ${securityData.vulnerability_count || 0}
+                                    </h3>
+                                    <p>Potential Vulnerabilities</p>
+                                </div>
+                                <div class="col-md-3">
+                                    <h3 class="text-${securityData.ssl_issues > 5 ? 'warning' : 'info'}">
+                                        ${securityData.ssl_issues || 0}
+                                    </h3>
+                                    <p>SSL/TLS Issues</p>
+                                </div>
+                                <div class="col-md-3">
+                                    <h3 class="text-info">
+                                        ${securityData.hosts_scanned || 0}
+                                    </h3>
+                                    <p>Hosts Scanned</p>
+                                </div>
+                                <div class="col-md-3">
+                                    <h3 class="text-muted">
+                                        ${securityData.scan_time ? new Date(securityData.scan_time).toLocaleDateString() : 'Never'}
+                                    </h3>
+                                    <p>Last Scan</p>
+                                </div>
+                            </div>
+                            <div class="alert alert-info mt-3">
+                                <strong>Note:</strong> Many "vulnerabilities" are false positives from aggressive scanning. 
+                                Review individual results for actual security concerns.
+                            </div>
+                            `
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function generateBandwidthContent() {
+    const bandwidthData = monitoringData.bandwidth_data || {};
+    const vnstatData = bandwidthData.vnstat_data || {};
+    
+    return `
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card" style="background: var(--card-color); border: 1px solid var(--title-color);">
+                    <div class="card-header" style="background: rgba(255, 119, 0, 0.1); color: var(--title-color);">
+                        <h5><i class="fas fa-chart-area mr-2"></i>Network Traffic Statistics</h5>
+                    </div>
+                    <div class="card-body" style="color: var(--text-color);">
+                        ${vnstatData.interfaces ? `
+                            <div class="row text-center">
+                                <div class="col-md-6">
+                                    <h4 class="text-success">${formatBytes(vnstatData.interfaces[0].traffic.total.rx)}</h4>
+                                    <p>Total Received</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h4 class="text-info">${formatBytes(vnstatData.interfaces[0].traffic.total.tx)}</h4>
+                                    <p>Total Transmitted</p>
+                                </div>
+                            </div>
+                            ${bandwidthData.current_stats?.connections ? `
+                                <hr>
+                                <h6>Current Connections</h6>
+                                <ul>
+                                    <li>TCP Connections: ${bandwidthData.current_stats.connections.tcp}</li>
+                                    <li>UDP Connections: ${bandwidthData.current_stats.connections.udp}</li>
+                                    <li>Listening Services: ${bandwidthData.current_stats.connections.listening}</li>
+                                </ul>
+                            ` : ''}
+                        ` : '<div class="alert alert-warning">No bandwidth data available</div>'}
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function formatBytes(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+function refreshMonitoringModal() {
+    refreshMonitoringData();
+    setTimeout(() => {
+        const currentTitle = document.getElementById('monitoring-modal-title').textContent;
+        if (currentTitle.includes('Overview')) generateMonitoringModalContent('overview');
+        else if (currentTitle.includes('Devices')) generateMonitoringModalContent('devices');
+        else if (currentTitle.includes('Security')) generateMonitoringModalContent('security');
+        else if (currentTitle.includes('Bandwidth')) generateMonitoringModalContent('bandwidth');
+    }, 1000);
+}
+
 // Initialize functions
 updateStats();
 setInterval(updateStats, 60000);  // Update every 60 seconds
