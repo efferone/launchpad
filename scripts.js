@@ -1,64 +1,42 @@
-// Check device status via backend
-function checkDeviceStatus() {
-    // Basic devices
-    const basicDevices = [
-        { ip: '192.168.1.19', name: 'Main PC' },
-        { ip: '192.168.1.53', name: 'Laptop' },
-        { ip: '192.168.1.66', name: 'Pi Zero 2W' },
-        { ip: '192.168.1.90', name: 'Dullbox' }
-    ];
-    
-    // Core service containers
-    const coreDevices = [
-        { ip: '192.168.1.91', name: 'Webserver' },
-        { ip: '192.168.1.92', name: 'Gitea' },
-        { ip: '192.168.1.93', name: 'Syncthing' },
-        { ip: '192.168.1.105', name: 'Debian12' },
-        { ip: '192.168.1.101', name: 'GitLab' },
-        { ip: '192.168.1.120', name: 'GitLab' }
-    ];
+// updated scripts.js for new OpenResty dashboard - please let this be the final version, it must be fixed now
 
-    // Media server containers
-    const mediaDevices = [
-        { ip: '192.168.1.94', name: 'Jellyfin' }
-    ];
+// better device status check using OpenResty API
+function checkDeviceStatus() {
+    console.log('Checking device status via OpenResty API...');
     
-    // Combine all devices for the status check
-    const allDevices = [...basicDevices, ...coreDevices, ...mediaDevices];
-    
-    // Create a query string with all devices
-    const devicesJson = encodeURIComponent(JSON.stringify(allDevices));
-    
-    fetch(`check_status.php?devices=${devicesJson}`)
+    fetch('/api/devices')
         .then(response => response.json())
         .then(data => {
-            data.devices.forEach(device => {
-                // Find all indicators for this device by IP
-                const indicators = document.querySelectorAll(`[data-device-ip="${device.ip}"]`);
+            if (data.devices) {
+                data.devices.forEach(device => {
+                    // Find all indicators for this device by IP
+                    const indicators = document.querySelectorAll(`[data-device-ip="${device.ip}"]`);
 
-                indicators.forEach(indicator => {
-                    if (device.status === 'online') {
-                        indicator.classList.add('online');
-                        indicator.classList.remove('offline');
-                        indicator.closest('.card, .container-card, .stats-container').style.opacity = 1;
-                    } else {
-                        indicator.classList.add('offline');
-                        indicator.classList.remove('online');
-                        indicator.closest('.card, .container-card, .stats-container').style.opacity = 0.7;
-                    }
+                    indicators.forEach(indicator => {
+                        if (device.status === 'online') {
+                            indicator.classList.add('online');
+                            indicator.classList.remove('offline');
+                            indicator.closest('.card, .container-card, .stats-container').style.opacity = 1;
+                        } else {
+                            indicator.classList.add('offline');
+                            indicator.classList.remove('online');
+                            indicator.closest('.card, .container-card, .stats-container').style.opacity = 0.7;
+                        }
+                    });
                 });
-            });
+                console.log(`Updated ${data.total_devices} devices at ${data.server_time}`);
+            }
         })
         .catch(error => {
             console.error('Error checking device status:', error);
         });
 }
 
-// Update system info from backend
+// faster system stats using OpenResty API
 function updateStats() {
-    console.log('Fetching system stats...');
+    console.log('Fetching system stats from OpenResty...');
     
-    fetch('./system_info.php')
+    fetch('/api/stats')
         .then(response => {
             console.log('Response status:', response.status);
             return response.json().catch(error => {
@@ -76,71 +54,80 @@ function updateStats() {
             }
             
             // Update the DOM elements
-            document.getElementById('dullbox-uptime').textContent = data.uptime || 'N/A';
-            document.getElementById('dullbox-cpu').textContent = data.cpu_usage + '%';
-            document.getElementById('dullbox-memory').textContent = 
-                data.memory_usage + '% of ' + data.memory_total + 'GB';
+            const uptimeEl = document.getElementById('dullbox-uptime');
+            const cpuEl = document.getElementById('dullbox-cpu');
+            const memoryEl = document.getElementById('dullbox-memory');
+            const lastUpdatedEl = document.getElementById('last-updated');
             
-            // Update timestamp
-            document.getElementById('last-updated').textContent = new Date().toLocaleString();
+            if (uptimeEl) uptimeEl.textContent = data.uptime || 'N/A';
+            if (cpuEl) cpuEl.textContent = (data.cpu_usage || 0) + '%';
+            if (memoryEl) {
+                memoryEl.textContent = (data.memory_usage || 0) + '% of ' + (data.memory_total || 0) + 'GB';
+            }
+            if (lastUpdatedEl) lastUpdatedEl.textContent = new Date().toLocaleString();
         })
         .catch(error => {
             console.error('Error updating stats:', error);
-            document.getElementById('dullbox-uptime').textContent = 'Error: ' + error.message;
-            document.getElementById('dullbox-cpu').textContent = 'Error';
-            document.getElementById('dullbox-memory').textContent = 'Error';
+            const uptimeEl = document.getElementById('dullbox-uptime');
+            const cpuEl = document.getElementById('dullbox-cpu');
+            const memoryEl = document.getElementById('dullbox-memory');
+            
+            if (uptimeEl) uptimeEl.textContent = 'Error: ' + error.message;
+            if (cpuEl) cpuEl.textContent = 'Error';
+            if (memoryEl) memoryEl.textContent = 'Error';
         });
 }
 
 function openWebSSH(host, username) {
     const hostUserMap = {
-        '192.168.1.19': 'suzy',    // Your PC
-        '192.168.1.21': 'fuzz',    // Raspberry Pi 3  
-        '192.168.1.53': 'snooze',  // Laptop
-        '192.168.1.66': 'kong',    // Pi Zero 2W
-        '192.168.1.90': 'root',    // Proxmox host
-        '192.168.1.91': 'root',    // Webserver container
-        '192.168.1.92': 'root',    // Gitea container
-        '192.168.1.93': 'root',    // Syncthing container
-        '192.168.1.94': 'root',    // Jellyfin container
-        '192.168.1.105': 'debra',  // Debian12 VM
-        '192.168.1.101': 'root',    // GitLab container
-        '192.168.1.120': 'root'    // GitLab container
+        '192.168.1.19': 'suzy',
+        '192.168.1.21': 'fuzz',
+        '192.168.1.53': 'snooze',
+        '192.168.1.66': 'kong',
+        '192.168.1.90': 'root',
+        '192.168.1.91': 'root',
+        '192.168.1.92': 'root',
+        '192.168.1.93': 'root',
+        '192.168.1.94': 'root',
+        '192.168.1.105': 'debra',
+        '192.168.1.101': 'root',
+        '192.168.1.120': 'root'
     };
     
     username = username || hostUserMap[host] || 'root';
     
     // Update modal title with connection info
-    document.getElementById('terminal-title').textContent = `SSH Terminal - Connect to ${username}@${host}`;
-    
-    // For webserver container (local), just open terminal
-    if (host === '192.168.1.91') {
-        document.getElementById('terminalFrame').src = `http://192.168.1.91:2222`;
-        $('#terminalModal').modal('show');
-        showLocalInstructions();
-    } else {
-        // For remote hosts, show connection instructions
-        document.getElementById('terminalFrame').src = `http://192.168.1.91:2222`;
-        $('#terminalModal').modal('show');
-        showConnectionInstructions(host, username);
+    const titleEl = document.getElementById('terminal-title');
+    if (titleEl) {
+        titleEl.textContent = `SSH Terminal - Connect to ${username}@${host}`;
     }
     
-    // Clean up when modal is closed
-    $('#terminalModal').on('hidden.bs.modal', function () {
-        document.getElementById('terminalFrame').src = '';
-        // Remove connection instructions
-        const instructions = document.getElementById('connection-instructions');
-        if (instructions) {
-            instructions.remove();
-        }
-        $(this).off('hidden.bs.modal');
-    });
+    // For webserver container (local), just open terminal
+    const frameEl = document.getElementById('terminalFrame');
+    if (frameEl) {
+        frameEl.src = `http://192.168.1.91:2222`;
+    }
+    
+    if (typeof $ !== 'undefined' && $('#terminalModal').length) {
+        $('#terminalModal').modal('show');
+        
+        // Clean up when modal is closed
+        $('#terminalModal').on('hidden.bs.modal', function () {
+            if (frameEl) frameEl.src = '';
+            const instructions = document.getElementById('connection-instructions');
+            if (instructions) instructions.remove();
+            $(this).off('hidden.bs.modal');
+        });
+    }
 }
 
 // Ollama Chat Functions
 function openOllamaChat() {
-    $('#ollamaModal').modal('show');
-    document.getElementById('chatInput').focus();
+    if (typeof $ !== 'undefined' && $('#ollamaModal').length) {
+        $('#ollamaModal').modal('show');
+        const chatInput = document.getElementById('chatInput');
+        if (chatInput) chatInput.focus();
+    }
 }
 
 function handleChatKeypress(event) {
@@ -152,8 +139,9 @@ function handleChatKeypress(event) {
 
 async function sendMessage() {
     const input = document.getElementById('chatInput');
-    const message = input.value.trim();
+    if (!input) return;
     
+    const message = input.value.trim();
     if (!message) return;
     
     // Add user message
@@ -164,17 +152,37 @@ async function sendMessage() {
     showChatStatus(true);
     
     try {
-        const response = await fetch('http://192.168.1.19:11434/api/generate', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                model: document.getElementById('modelSelector').value,
-                prompt: message,
-                stream: false
-            })
-        });
+        const modelSelector = document.getElementById('modelSelector');
+        const model = modelSelector ? modelSelector.value : 'llama3.2:3b';
+        
+        // Try to use proxy first, fallback to direct connection
+        let response;
+        try {
+            response = await fetch('/proxy/ollama/api/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    model: model,
+                    prompt: message,
+                    stream: false
+                })
+            });
+        } catch (proxyError) {
+            console.log('Proxy failed, trying direct connection...');
+            response = await fetch('http://192.168.1.19:11434/api/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    model: model,
+                    prompt: message,
+                    stream: false
+                })
+            });
+        }
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -188,12 +196,14 @@ async function sendMessage() {
         addChatMessage('Sorry, I encountered an error. Please make sure Ollama is running on your PC.', 'ai', true);
     } finally {
         showChatStatus(false);
-        input.focus();
+        if (input) input.focus();
     }
 }
 
 function addChatMessage(message, sender, isError = false) {
     const chatMessages = document.getElementById('chatMessages');
+    if (!chatMessages) return;
+    
     const messageDiv = document.createElement('div');
     
     let className = 'chat-message ';
@@ -234,28 +244,38 @@ function showChatStatus(show) {
     const status = document.getElementById('chatStatus');
     const button = document.getElementById('sendButton');
     
-    if (show) {
-        status.style.display = 'block';
-        button.disabled = true;
-        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-    } else {
-        status.style.display = 'none';
-        button.disabled = false;
-        button.innerHTML = '<i class="fas fa-paper-plane"></i>';
+    if (status) {
+        status.style.display = show ? 'block' : 'none';
+    }
+    if (button) {
+        button.disabled = show;
+        button.innerHTML = show ? '<i class="fas fa-spinner fa-spin"></i>' : '<i class="fas fa-paper-plane"></i>';
     }
 }
 
 // Load available models on modal open
-$('#ollamaModal').on('shown.bs.modal', function () {
-    loadAvailableModels();
-});
+if (typeof $ !== 'undefined') {
+    $(document).ready(function() {
+        $('#ollamaModal').on('shown.bs.modal', function () {
+            loadAvailableModels();
+        });
+    });
+}
 
 async function loadAvailableModels() {
     try {
-        const response = await fetch('http://192.168.1.19:11434/api/tags');
+        // Try proxy first, then direct
+        let response;
+        try {
+            response = await fetch('/proxy/ollama/api/tags');
+        } catch (proxyError) {
+            response = await fetch('http://192.168.1.19:11434/api/tags');
+        }
+        
         if (response.ok) {
             const data = await response.json();
             const selector = document.getElementById('modelSelector');
+            if (!selector) return;
             
             // Clear existing options
             selector.innerHTML = '';
@@ -283,10 +303,6 @@ let monitoringData = {};
 let monitoringInterval;
 
 // Initialize monitoring when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    initMonitoring();
-});
-
 function initMonitoring() {
     console.log('Initializing monitoring...');
     refreshMonitoringData();
@@ -296,14 +312,27 @@ function initMonitoring() {
 }
 
 function refreshMonitoringData() {
-    fetch('/api/monitoring_dashboard.php')
+    // Use our OpenResty device data for basic monitoring
+    fetch('/api/devices')
         .then(response => response.json())
-        .then(data => {
-            monitoringData = data;
-            updateMonitoringCards(data);
+        .then(deviceData => {
+            const mockMonitoringData = {
+                status: 'online',
+                network_discovery: {
+                    devices: deviceData.devices || [],
+                    total_devices: deviceData.total_devices || 0
+                },
+                system_status: {
+                    hostname: 'OpenResty-Dashboard',
+                    uptime: 'Available via stats API',
+                    ip: '192.168.1.98'
+                }
+            };
+            monitoringData = mockMonitoringData;
+            updateMonitoringCards(mockMonitoringData);
         })
         .catch(error => {
-            console.error('Error fetching monitoring data:', error);
+            console.error('Error fetching device data:', error);
             updateSentinelStatus(false);
         });
 }
@@ -312,128 +341,79 @@ function updateMonitoringCards(data) {
     // Update sentinel status
     updateSentinelStatus(data.status === 'online');
     
-    // Update sentinel uptime
-    if (data.system_status && data.system_status.uptime) {
-        const uptimeMatch = data.system_status.uptime.match(/up\s+(.+?),/);
-        document.getElementById('sentinel-uptime').textContent = uptimeMatch ? uptimeMatch[1] : 'Unknown';
-    }
-    
     // Update network overview
     if (data.network_discovery && data.network_discovery.devices) {
         const devices = data.network_discovery.devices;
-        const onlineDevices = devices.filter(device => device.status === 'up');
+        const onlineDevices = devices.filter(device => device.status === 'online');
         
-        document.getElementById('total-devices').textContent = devices.length;
-        document.getElementById('online-devices').textContent = onlineDevices.length;
+        const totalEl = document.getElementById('total-devices');
+        const onlineEl = document.getElementById('online-devices');
+        
+        if (totalEl) totalEl.textContent = devices.length;
+        if (onlineEl) onlineEl.textContent = onlineDevices.length;
     }
-    
-    // Update security status
-    updateSecurityCard(data.security_summary);
-    
-    // Update bandwidth
-    updateBandwidthCard(data.bandwidth_data);
 }
 
 function updateSentinelStatus(online) {
     const statusDot = document.getElementById('sentinel-status-dot');
     const securityDot = document.getElementById('security-status-dot');
     
-    if (online) {
-        statusDot.className = 'status-indicator online';
-        securityDot.className = 'status-indicator online';
-    } else {
-        statusDot.className = 'status-indicator offline';
-        securityDot.className = 'status-indicator offline';
+    if (statusDot) {
+        statusDot.className = online ? 'status-indicator online' : 'status-indicator offline';
+    }
+    if (securityDot) {
+        securityDot.className = online ? 'status-indicator online' : 'status-indicator offline';
     }
 }
 
-function updateSecurityCard(securityData) {
-    const vulnCount = document.getElementById('vuln-count');
-    const lastScan = document.getElementById('last-scan-short');
-    
-    if (securityData && !securityData.error) {
-        vulnCount.textContent = securityData.vulnerability_count || '0';
-        
-        // Color code vulnerability count
-        if (securityData.vulnerability_count > 10) {
-            vulnCount.className = 'small-value error';
-        } else if (securityData.vulnerability_count > 5) {
-            vulnCount.className = 'small-value warning';
-        } else {
-            vulnCount.className = 'small-value';
-        }
-        
-        // Format scan time
-        if (securityData.scan_time) {
-            const scanDate = new Date(securityData.scan_time);
-            lastScan.textContent = scanDate.toLocaleDateString();
-        } else {
-            lastScan.textContent = 'Never';
-        }
-    } else {
-        vulnCount.textContent = '-';
-        lastScan.textContent = 'No data';
-    }
-}
-
-function updateBandwidthCard(bandwidthData) {
-    const totalRx = document.getElementById('total-rx-short');
-    const totalTx = document.getElementById('total-tx-short');
-    
-    if (bandwidthData && bandwidthData.vnstat_data && bandwidthData.vnstat_data.interfaces) {
-        const iface = bandwidthData.vnstat_data.interfaces[0];
-        const totalTraffic = iface.traffic.total;
-        
-        totalRx.textContent = formatBytesShort(totalTraffic.rx);
-        totalTx.textContent = formatBytesShort(totalTraffic.tx);
-    } else {
-        totalRx.textContent = '-';
-        totalTx.textContent = '-';
-    }
-}
-
-function formatBytesShort(bytes) {
-    if (bytes === 0) return '0B';
-    
-    const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + sizes[i];
-}
-
-// Modal functions
+// Modal functions (with safety checks)
 function openMonitoringModal() {
-    document.getElementById('monitoring-modal-title').textContent = 'Network Monitoring Overview';
-    generateMonitoringModalContent('overview');
-    $('#monitoringModal').modal('show');
+    const titleEl = document.getElementById('monitoring-modal-title');
+    if (titleEl) {
+        titleEl.textContent = 'Network Monitoring Overview';
+        generateMonitoringModalContent('overview');
+        if (typeof $ !== 'undefined') {
+            $('#monitoringModal').modal('show');
+        }
+    }
 }
 
 function showDeviceList() {
-    document.getElementById('monitoring-modal-title').textContent = 'Network Devices';
-    generateMonitoringModalContent('devices');
-    $('#monitoringModal').modal('show');
+    const titleEl = document.getElementById('monitoring-modal-title');
+    if (titleEl) {
+        titleEl.textContent = 'Network Devices';
+        generateMonitoringModalContent('devices');
+        if (typeof $ !== 'undefined') {
+            $('#monitoringModal').modal('show');
+        }
+    }
 }
 
 function showSecurityDetails() {
-    document.getElementById('monitoring-modal-title').textContent = 'Security Status';
-    generateMonitoringModalContent('security');
-    $('#monitoringModal').modal('show');
+    const titleEl = document.getElementById('monitoring-modal-title');
+    if (titleEl) {
+        titleEl.textContent = 'Security Status';
+        generateMonitoringModalContent('security');
+        if (typeof $ !== 'undefined') {
+            $('#monitoringModal').modal('show');
+        }
+    }
 }
 
 function showBandwidthDetails() {
-    document.getElementById('monitoring-modal-title').textContent = 'Bandwidth & Traffic';
-    generateMonitoringModalContent('bandwidth');
-    $('#monitoringModal').modal('show');
+    const titleEl = document.getElementById('monitoring-modal-title');
+    if (titleEl) {
+        titleEl.textContent = 'Bandwidth & Traffic';
+        generateMonitoringModalContent('bandwidth');
+        if (typeof $ !== 'undefined') {
+            $('#monitoringModal').modal('show');
+        }
+    }
 }
 
 function generateMonitoringModalContent(type) {
     const content = document.getElementById('monitoring-modal-content');
-    
-    if (!monitoringData || monitoringData.status !== 'online') {
-        content.innerHTML = '<div class="alert alert-danger">LXC-Sentinel is offline or unreachable</div>';
-        return;
-    }
+    if (!content) return;
     
     switch(type) {
         case 'overview':
@@ -452,9 +432,6 @@ function generateMonitoringModalContent(type) {
 }
 
 function generateOverviewContent() {
-    const systemStatus = monitoringData.system_status || {};
-    const networkData = monitoringData.network_discovery || {};
-    
     return `
         <div class="row">
             <div class="col-md-6">
@@ -463,15 +440,10 @@ function generateOverviewContent() {
                         <h5><i class="fas fa-server mr-2"></i>System Status</h5>
                     </div>
                     <div class="card-body" style="color: var(--text-color);">
-                        <p><strong>Hostname:</strong> ${systemStatus.hostname || 'Unknown'}</p>
-                        <p><strong>IP Address:</strong> ${systemStatus.ip || 'Unknown'}</p>
-                        <p><strong>Uptime:</strong> ${systemStatus.uptime || 'Unknown'}</p>
-                        <p><strong>Services:</strong></p>
-                        <ul>
-                            ${systemStatus.services ? Object.entries(systemStatus.services).map(([service, status]) => 
-                                `<li><span class="badge badge-${status === 'active' ? 'success' : 'danger'}">${service}</span> ${status}</li>`
-                            ).join('') : '<li>No service data</li>'}
-                        </ul>
+                        <p><strong>Hostname:</strong> OpenResty-Dashboard</p>
+                        <p><strong>IP Address:</strong> 192.168.1.98</p>
+                        <p><strong>Platform:</strong> OpenResty + LXC</p>
+                        <p><strong>Status:</strong> <span class="badge badge-success">Online</span></p>
                     </div>
                 </div>
             </div>
@@ -481,9 +453,9 @@ function generateOverviewContent() {
                         <h5><i class="fas fa-network-wired mr-2"></i>Network Summary</h5>
                     </div>
                     <div class="card-body" style="color: var(--text-color);">
-                        <p><strong>Total Devices:</strong> ${networkData.total_devices || 0}</p>
-                        <p><strong>Network:</strong> ${networkData.network || '192.168.1.0/24'}</p>
-                        <p><strong>Last Scan:</strong> ${networkData.timestamp ? new Date(networkData.timestamp).toLocaleString() : 'Unknown'}</p>
+                        <p><strong>Total Devices:</strong> ${monitoringData.network_discovery ? monitoringData.network_discovery.total_devices || 0 : 0}</p>
+                        <p><strong>Network:</strong> 192.168.1.0/24</p>
+                        <p><strong>Monitor:</strong> OpenResty Device API</p>
                     </div>
                 </div>
             </div>
@@ -495,7 +467,7 @@ function generateDevicesContent() {
     const devices = monitoringData.network_discovery?.devices || [];
     
     if (devices.length === 0) {
-        return '<div class="alert alert-warning">No devices found</div>';
+        return '<div class="alert alert-warning">No devices found in monitoring data</div>';
     }
     
     return `
@@ -505,17 +477,17 @@ function generateDevicesContent() {
                     <tr>
                         <th>Status</th>
                         <th>IP Address</th>
-                        <th>Hostname</th>
-                        <th>Last Seen</th>
+                        <th>Device Name</th>
+                        <th>Last Check</th>
                     </tr>
                 </thead>
                 <tbody>
                     ${devices.map(device => `
                         <tr>
-                            <td><span class="badge badge-${device.status === 'up' ? 'success' : 'danger'}">${device.status}</span></td>
+                            <td><span class="badge badge-${device.status === 'online' ? 'success' : 'danger'}">${device.status}</span></td>
                             <td style="font-family: 'JetBrains Mono', monospace;">${device.ip}</td>
-                            <td>${device.hostname === 'Unknown' ? '<em>Unknown Device</em>' : device.hostname}</td>
-                            <td>${new Date(device.last_seen).toLocaleString()}</td>
+                            <td>${device.name || 'Unknown Device'}</td>
+                            <td>${device.timestamp || 'Unknown'}</td>
                         </tr>
                     `).join('')}
                 </tbody>
@@ -525,52 +497,11 @@ function generateDevicesContent() {
 }
 
 function generateSecurityContent() {
-    const securityData = monitoringData.security_summary || {};
-    
     return `
         <div class="row">
             <div class="col-md-12">
-                <div class="card" style="background: var(--card-color); border: 1px solid var(--title-color);">
-                    <div class="card-header" style="background: rgba(255, 119, 0, 0.1); color: var(--title-color);">
-                        <h5><i class="fas fa-shield-alt mr-2"></i>Security Scan Results</h5>
-                    </div>
-                    <div class="card-body" style="color: var(--text-color);">
-                        ${securityData.error ? 
-                            '<div class="alert alert-warning">No security scan data available</div>' :
-                            `
-                            <div class="row text-center">
-                                <div class="col-md-3">
-                                    <h3 class="text-${securityData.vulnerability_count > 10 ? 'danger' : securityData.vulnerability_count > 5 ? 'warning' : 'success'}">
-                                        ${securityData.vulnerability_count || 0}
-                                    </h3>
-                                    <p>Potential Vulnerabilities</p>
-                                </div>
-                                <div class="col-md-3">
-                                    <h3 class="text-${securityData.ssl_issues > 5 ? 'warning' : 'info'}">
-                                        ${securityData.ssl_issues || 0}
-                                    </h3>
-                                    <p>SSL/TLS Issues</p>
-                                </div>
-                                <div class="col-md-3">
-                                    <h3 class="text-info">
-                                        ${securityData.hosts_scanned || 0}
-                                    </h3>
-                                    <p>Hosts Scanned</p>
-                                </div>
-                                <div class="col-md-3">
-                                    <h3 class="text-muted">
-                                        ${securityData.scan_time ? new Date(securityData.scan_time).toLocaleDateString() : 'Never'}
-                                    </h3>
-                                    <p>Last Scan</p>
-                                </div>
-                            </div>
-                            <div class="alert alert-info mt-3">
-                                <strong>Note:</strong> Many "vulnerabilities" are false positives from aggressive scanning. 
-                                Review individual results for actual security concerns.
-                            </div>
-                            `
-                        }
-                    </div>
+                <div class="alert alert-info">
+                    <strong>Note:</strong> Security monitoring requires LXC-Sentinel integration.
                 </div>
             </div>
         </div>
@@ -578,67 +509,88 @@ function generateSecurityContent() {
 }
 
 function generateBandwidthContent() {
-    const bandwidthData = monitoringData.bandwidth_data || {};
-    const vnstatData = bandwidthData.vnstat_data || {};
-    
     return `
         <div class="row">
             <div class="col-md-12">
-                <div class="card" style="background: var(--card-color); border: 1px solid var(--title-color);">
-                    <div class="card-header" style="background: rgba(255, 119, 0, 0.1); color: var(--title-color);">
-                        <h5><i class="fas fa-chart-area mr-2"></i>Network Traffic Statistics</h5>
-                    </div>
-                    <div class="card-body" style="color: var(--text-color);">
-                        ${vnstatData.interfaces ? `
-                            <div class="row text-center">
-                                <div class="col-md-6">
-                                    <h4 class="text-success">${formatBytes(vnstatData.interfaces[0].traffic.total.rx)}</h4>
-                                    <p>Total Received</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <h4 class="text-info">${formatBytes(vnstatData.interfaces[0].traffic.total.tx)}</h4>
-                                    <p>Total Transmitted</p>
-                                </div>
-                            </div>
-                            ${bandwidthData.current_stats?.connections ? `
-                                <hr>
-                                <h6>Current Connections</h6>
-                                <ul>
-                                    <li>TCP Connections: ${bandwidthData.current_stats.connections.tcp}</li>
-                                    <li>UDP Connections: ${bandwidthData.current_stats.connections.udp}</li>
-                                    <li>Listening Services: ${bandwidthData.current_stats.connections.listening}</li>
-                                </ul>
-                            ` : ''}
-                        ` : '<div class="alert alert-warning">No bandwidth data available</div>'}
-                    </div>
+                <div class="alert alert-info">
+                    <strong>Note:</strong> Bandwidth monitoring requires LXC-Sentinel integration or additional OpenResty modules.
                 </div>
             </div>
         </div>
     `;
 }
 
-function formatBytes(bytes) {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-}
-
 function refreshMonitoringModal() {
     refreshMonitoringData();
     setTimeout(() => {
-        const currentTitle = document.getElementById('monitoring-modal-title').textContent;
-        if (currentTitle.includes('Overview')) generateMonitoringModalContent('overview');
-        else if (currentTitle.includes('Devices')) generateMonitoringModalContent('devices');
-        else if (currentTitle.includes('Security')) generateMonitoringModalContent('security');
-        else if (currentTitle.includes('Bandwidth')) generateMonitoringModalContent('bandwidth');
+        const currentTitle = document.getElementById('monitoring-modal-title');
+        if (currentTitle) {
+            if (currentTitle.textContent.includes('Overview')) generateMonitoringModalContent('overview');
+            else if (currentTitle.textContent.includes('Devices')) generateMonitoringModalContent('devices');
+            else if (currentTitle.textContent.includes('Security')) generateMonitoringModalContent('security');
+            else if (currentTitle.textContent.includes('Bandwidth')) generateMonitoringModalContent('bandwidth');
+        }
     }, 1000);
 }
 
-// Initialize functions
-updateStats();
-setInterval(updateStats, 60000);  // Update every 60 seconds
+// cleaner initialization
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Initializing HomeTown Dashboard with OpenResty...');
+    
+    // Add connection status indicator
+    const statusEl = document.createElement('div');
+    statusEl.id = 'connection-status';
+    statusEl.textContent = '🟢 OpenResty';
+    statusEl.style.cssText = `
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 12px;
+        z-index: 1000;
+        background: rgba(46, 204, 113, 0.2);
+        border: 1px solid #2ecc71;
+        color: #2ecc71;
+        font-family: 'JetBrains Mono', monospace;
+    `;
+    document.body.appendChild(statusEl);
+    
+    // Initialize monitoring
+    initMonitoring();
+    
+    // Initialize stats and device checking
+    updateStats();
+    checkDeviceStatus();
+    
+    // Set up intervals
+    setInterval(updateStats, 60000);  // Update every 60 seconds
+    setInterval(checkDeviceStatus, 30000);  // Update every 30 seconds
+    
+    console.log('Dashboard initialization complete');
+});
 
-checkDeviceStatus();
-setInterval(checkDeviceStatus, 30000);  // Update every 30 seconds
+// Debug function
+function debugDeviceStatus() {
+    console.log('=== Device Status Debug ===');
+    
+    fetch('/api/devices')
+        .then(response => response.json())
+        .then(data => {
+            console.log('API Response:', data);
+            
+            if (data.devices) {
+                data.devices.forEach(device => {
+                    console.log(`Checking device: ${device.name} (${device.ip}) - ${device.status}`);
+                    
+                    const indicators = document.querySelectorAll(`[data-device-ip="${device.ip}"]`);
+                    console.log(`Found ${indicators.length} indicators for ${device.ip}`);
+                    
+                    indicators.forEach((indicator, index) => {
+                        console.log(`Indicator ${index}:`, indicator);
+                        console.log(`Classes:`, indicator.className);
+                    });
+                });
+            }
+        });
+}
