@@ -36,293 +36,325 @@
             <div class="cyber-line-reversed"></div>
         </header>
 
-        <section class="section">
-            <h2 class="section-header">Home Devices</h2>
-            <div class="cards">
-                <div class="card">
-                    <h3><span class="status-indicator" data-device-ip="192.168.1.19"></span>Main PC</h3>
-                    <div class="card-content">
-                        <p><strong>IP:</strong> 192.168.1.19</p>
-                    </div>
-                    <a href="vnc://192.168.1.19:5900" class="button">
-                        <i class="fas fa-desktop mr-2"></i>VNC
-                    </a>
-                    <button onclick="openWebSSH('192.168.1.19', 'suzy')" class="button">
-                        <i class="fas fa-terminal mr-2"></i>SSH
-                    </button>
+        <!-- Accordion Dashboard -->
+        <div class="dashboard-container">
+            <!-- Home Devices Accordion -->
+            <div class="accordion-section">
+                <div class="accordion-header" onclick="toggleAccordion('home-devices')">
+                    <h2 class="section-header-accordion">
+                        <i class="fas fa-home mr-2"></i>Home Devices
+                        <i class="fas fa-chevron-down accordion-icon" id="home-devices-icon"></i>
+                    </h2>
                 </div>
+                <div class="accordion-content active" id="home-devices-content">
+                    <div class="cards">
+                        <div class="card">
+                            <h3><span class="status-indicator" data-device-ip="192.168.1.19"></span>Main PC</h3>
+                            <div class="card-content">
+                                <p><strong>IP:</strong> 192.168.1.19</p>
+                            </div>
+                            <a href="vnc://192.168.1.19:5900" class="button">
+                                <i class="fas fa-desktop mr-2"></i>VNC
+                            </a>
+                            <button onclick="openWebSSH('192.168.1.19', 'suzy')" class="button">
+                                <i class="fas fa-terminal mr-2"></i>SSH
+                            </button>
+                        </div>
 
-                <div class="card">
-                    <h3><span class="status-indicator" data-device-ip="192.168.1.53"></span>Laptop</h3>
-                    <div class="card-content">
-                        <p><strong>IP:</strong> 192.168.1.53</p>
-                    </div>
-                    <a href="vnc://192.168.1.53:5900" class="button">
-                        <i class="fas fa-desktop mr-2"></i>VNC
-                    </a>
-                    <button onclick="openWebSSH('192.168.1.53', 'snooze')" class="button">
-                        <i class="fas fa-terminal mr-2"></i>SSH
-                    </button>
-                </div>
+                        <div class="card">
+                            <h3><span class="status-indicator" data-device-ip="192.168.1.53"></span>Laptop</h3>
+                            <div class="card-content">
+                                <p><strong>IP:</strong> 192.168.1.53</p>
+                            </div>
+                            <a href="vnc://192.168.1.53:5900" class="button">
+                                <i class="fas fa-desktop mr-2"></i>VNC
+                            </a>
+                            <button onclick="openWebSSH('192.168.1.53', 'snooze')" class="button">
+                                <i class="fas fa-terminal mr-2"></i>SSH
+                            </button>
+                        </div>
 
-                <div class="card">
-                    <h3><span class="status-indicator" data-device-ip="192.168.1.66"></span>Pi Zero 2W</h3>
-                    <div class="card-content">
-                        <p><strong>IP:</strong> 192.168.1.66</p>
+                        <div class="card">
+                            <h3><span class="status-indicator" data-device-ip="192.168.1.66"></span>Pi Zero 2W</h3>
+                            <div class="card-content">
+                                <p><strong>IP:</strong> 192.168.1.66</p>
+                            </div>
+                            <button onclick="openWebSSH('192.168.1.66', 'kong')" class="button">
+                                <i class="fas fa-terminal mr-2"></i>SSH
+                            </button>
+                        </div>
                     </div>
-                    <button onclick="openWebSSH('192.168.1.66', 'kong')" class="button">
-                        <i class="fas fa-terminal mr-2"></i>SSH
-                    </button>
                 </div>
             </div>
-        </section>
 
-        <section class="section">
-            <div class="section-header" style="display: flex; justify-content: space-between; align-items: center;">
-                <h2 style="margin: 0;">Dullbox</h2>
-                <div class="actions-container" style="margin: 0;">
-                    <div class="action-button">
-                        <a href="https://192.168.1.90:8006" target="_blank" class="button">
-                            <i class="fas fa-server mr-2"></i>Proxmox UI
+            <!-- Dullbox Accordion -->
+            <div class="accordion-section">
+                <div class="accordion-header" onclick="toggleAccordion('dullbox')">
+                    <h2 class="section-header-accordion">
+                        <i class="fas fa-server mr-2"></i>Dullbox
+                        <i class="fas fa-chevron-down accordion-icon" id="dullbox-icon"></i>
+                    </h2>
+                    <div class="accordion-actions">
+                        <a href="https://192.168.1.90:8006" target="_blank" class="button compact-btn">
+                            <i class="fas fa-server mr-1"></i>Proxmox
+                        </a>
+                        <a href="http://192.168.1.91:8080" target="_blank" class="button compact-btn">
+                            <i class="fas fa-folder mr-1"></i>WebDAV
+                        </a>
+                        <a href="http://192.168.1.91/phpsysinfo/" class="button compact-btn" target="_blank">
+                            <i class="fas fa-info-circle mr-1"></i>Info
                         </a>
                     </div>
-                    <div class="action-button">
-                        <a href="http://192.168.1.91:8080" target="_blank" class="button">
-                            <i class="fas fa-folder mr-2"></i>WebDAV
-                        </a>
-                    </div>
-                    <div class="action-button">
-                        <a href="http://192.168.1.91/phpsysinfo/" class="button" target="_blank">
-                            <i class="fas fa-info-circle mr-2"></i>System Info
-                        </a>
+                </div>
+                <div class="accordion-content active" id="dullbox-content">
+                    <div class="container-cards">
+                        <!-- Webserver Container -->
+                        <div class="container-card">
+                            <h3><span class="status-indicator" data-device-ip="192.168.1.91"></span>Webserver</h3>
+                            <div class="ip-address">192.168.1.91</div>
+                            <button onclick="openWebSSH('192.168.1.91', 'root')" class="button">
+                                <i class="fas fa-terminal mr-1"></i>SSH
+                            </button>
+                        </div>
+                        
+                        <!-- Gitea Container -->
+                        <div class="container-card">
+                            <h3><span class="status-indicator" data-device-ip="192.168.1.92"></span>Gitea</h3>
+                            <div class="ip-address">192.168.1.92</div>
+                            <a href="http://192.168.1.92:3000" target="_blank" class="button">
+                                <i class="fab fa-git-alt mr-1"></i>UI
+                            </a>
+                            <button onclick="openWebSSH('192.168.1.92', 'root')" class="button">
+                                <i class="fas fa-terminal mr-1"></i>SSH
+                            </button>
+                        </div>
+
+                        <!-- GitLab -->
+                        <div class="container-card">
+                            <h3><span class="status-indicator" data-device-ip="192.168.1.101"></span>GitLab</h3>
+                            <div class="ip-address">192.168.1.101</div>
+                            <a href="http://192.168.1.101" target="_blank" class="button">
+                                <i class="fab fa-git-alt mr-1"></i>UI
+                            </a>                    
+                            <button onclick="openWebSSH('192.168.1.101', 'root')" class="button">
+                                <i class="fas fa-terminal mr-1"></i>SSH
+                            </button>
+                        </div>
+
+                        <!-- GitLab Sim-->
+                        <div class="container-card">
+                            <h3><span class="status-indicator" data-device-ip="192.168.1.120"></span>GitLab Sim</h3>
+                            <div class="ip-address">192.168.1.120</div>
+                            <a href="http://192.168.1.120" target="_blank" class="button">
+                                <i class="fab fa-git-alt mr-1"></i>UI
+                            </a>                    
+                            <button onclick="openWebSSH('192.168.1.120', 'root')" class="button">
+                                <i class="fas fa-terminal mr-1"></i>SSH
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Containers Section -->
-            <div class="container-cards">
-                <!-- Webserver Container -->
-                <div class="container-card">
-                    <h3><span class="status-indicator" data-device-ip="192.168.1.91"></span>Webserver</h3>
-                    <div class="ip-address">192.168.1.91</div>
-                    <button onclick="openWebSSH('192.168.1.91', 'root')" class="button">
-                        <i class="fas fa-terminal mr-1"></i>SSH
-                    </button>
+            <!-- Services Accordion -->
+            <div class="accordion-section">
+                <div class="accordion-header" onclick="toggleAccordion('services')">
+                    <h2 class="section-header-accordion">
+                        <i class="fas fa-cogs mr-2"></i>Services
+                        <i class="fas fa-chevron-down accordion-icon" id="services-icon"></i>
+                    </h2>
                 </div>
-                
-                <!-- Gitea Container -->
-                <div class="container-card">
-                    <h3><span class="status-indicator" data-device-ip="192.168.1.92"></span>Gitea</h3>
-                    <div class="ip-address">192.168.1.92</div>
-                    <a href="http://192.168.1.92:3000" target="_blank" class="button">
-                        <i class="fab fa-git-alt mr-1"></i>UI
-                    </a>
-                    <button onclick="openWebSSH('192.168.1.92', 'root')" class="button">
-                        <i class="fas fa-terminal mr-1"></i>SSH
-                    </button>
-                </div>
+                <div class="accordion-content active" id="services-content">
+                    <div class="container-cards">
+                        <!-- Syncthing Container -->
+                        <div class="container-card">
+                            <h3><span class="status-indicator" data-device-ip="192.168.1.93"></span>Syncthing</h3>
+                            <div class="ip-address">192.168.1.93</div>
+                            <a href="http://192.168.1.93:8384" target="_blank" class="button">
+                                <i class="fas fa-sync-alt mr-1"></i>UI
+                            </a>
+                            <button onclick="openWebSSH('192.168.1.93', 'root')" class="button">
+                                <i class="fas fa-terminal mr-1"></i>SSH
+                            </button>
+                        </div>
 
-                <!-- GitLab -->
-                <div class="container-card">
-                    <h3><span class="status-indicator" data-device-ip="192.168.1.101"></span>GitLab</h3>
-                    <div class="ip-address">192.168.1.101</div>
-                    <a href="http://192.168.1.101" target="_blank" class="button">
-                        <i class="fab fa-git-alt mr-1"></i>UI
-                    </a>                    
-                    <button onclick="openWebSSH('192.168.1.101', 'root')" class="button">
-                        <i class="fas fa-terminal mr-1"></i>SSH
-                    </button>
-                </div>
+                        <!-- local ai -->
+                        <div class="container-card">
+                            <h3><span class="status-indicator" data-device-ip="192.168.1.19"></span>homebot</h3>
+                            <div class="ip-address">192.168.1.19:11434</div>
+                            <button onclick="openOllamaChat()" class="button">
+                                <i class="fas fa-robot mr-1"></i>Chat
+                            </button>
+                            <a href="http://192.168.1.19:3000" target="_blank" class="button">
+                                <i class="fas fa-brain mr-1"></i>WebUI
+                            </a>
+                        </div>
 
-                <!-- GitLab Sim-->
-                <div class="container-card">
-                    <h3><span class="status-indicator" data-device-ip="192.168.1.120"></span>GitLab Sim</h3>
-                    <div class="ip-address">192.168.1.120</div>
-                    <a href="http://192.168.1.120" target="_blank" class="button">
-                        <i class="fab fa-git-alt mr-1"></i>UI
-                    </a>                    
-                    <button onclick="openWebSSH('192.168.1.120', 'root')" class="button">
-                        <i class="fas fa-terminal mr-1"></i>SSH
-                    </button>
-                </div>
-            </div>
-        </section>
+                        <!-- Debian12 VM -->
+                        <div class="container-card">
+                            <h3><span class="status-indicator" data-device-ip="192.168.1.105"></span>Debian12</h3>
+                            <div class="ip-address">192.168.1.105</div>
+                            <a href="vnc://192.168.1.105:5900" class="button">
+                                <i class="fas fa-desktop mr-1"></i>VNC
+                            </a>
+                            <button onclick="openWebSSH('192.168.1.105', 'debra')" class="button">
+                                <i class="fas fa-terminal mr-1"></i>SSH
+                            </button>
+                        </div>
 
-        <section class="section">
-            <div class="cyber-line-reversed"></div>
-            <div class="container-cards">
-                
-                <!-- Syncthing Container -->
-                <div class="container-card">
-                    <h3><span class="status-indicator" data-device-ip="192.168.1.93"></span>Syncthing</h3>
-                    <div class="ip-address">192.168.1.93</div>
-                    <a href="http://192.168.1.93:8384" target="_blank" class="button">
-                        <i class="fas fa-sync-alt mr-1"></i>UI
-                    </a>
-                    <button onclick="openWebSSH('192.168.1.93', 'root')" class="button">
-                        <i class="fas fa-terminal mr-1"></i>SSH
-                    </button>
-                </div>
-
-                <!-- local ai -->
-                <div class="container-card">
-                    <h3><span class="status-indicator" data-device-ip="192.168.1.19"></span>homebot</h3>
-                    <div class="ip-address">192.168.1.19:11434</div>
-                    <button onclick="openOllamaChat()" class="button">
-                        <i class="fas fa-robot mr-1"></i>Chat
-                    </button>
-                    <a href="http://192.168.1.19:3000" target="_blank" class="button">
-                        <i class="fas fa-brain mr-1"></i>WebUI
-                    </a>
-                </div>
-
-                <!-- Debian12 VM -->
-                <div class="container-card">
-                    <h3><span class="status-indicator" data-device-ip="192.168.1.105"></span>Debian12</h3>
-                    <div class="ip-address">192.168.1.105</div>
-                    <a href="vnc://192.168.1.105:5900" class="button">
-                        <i class="fas fa-desktop mr-1"></i>VNC
-                    </a>
-                    <button onclick="openWebSSH('192.168.1.105', 'debra')" class="button">
-                        <i class="fas fa-terminal mr-1"></i>SSH
-                    </button>
-                </div>
-
-                <!-- Jellyfin Container -->
-                <div class="container-card">
-                    <h3><span class="status-indicator" data-device-ip="192.168.1.94"></span>Jellyfin</h3>
-                    <div class="ip-address">192.168.1.94</div>
-                    <a href="http://192.168.1.94:8096" target="_blank" class="button">
-                        <i class="fas fa-play mr-1"></i>UI
-                    </a>
-                    <button onclick="openWebSSH('192.168.1.94', 'root')" class="button">
-                        <i class="fas fa-terminal mr-1"></i>SSH
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <section class="section">
-        <h2 class="section-header">Network Monitoring</h2>
-    
-        <!-- Scan Controls - Add this new div -->
-        <div class="scan-controls-container">
-            <div class="scan-buttons">
-                <button class="button scan-button" onclick="startFullScan()" id="fullScanBtn">
-                    <i class="fas fa-search mr-2"></i>Full Scan
-                </button>
-                <button class="button scan-button" onclick="startQuickScan()" id="quickScanBtn">
-                    <i class="fas fa-bolt mr-2"></i>Quick Scan
-                </button>
-                <button class="button scan-button" onclick="startSecurityScan()" id="securityScanBtn">
-                    <i class="fas fa-shield-alt mr-2"></i>Security Scan
-                </button>
-            </div>
-            
-            <!-- Progress Container -->
-            <div class="scan-progress-container" id="scanProgressContainer" style="display: none;">
-                <div class="scan-status-text" id="scanStatusText">Initializing scan...</div>
-                <div class="scan-progress-bar">
-                    <div class="scan-progress-fill" id="scanProgressFill"></div>
-                </div>
-                <div class="scan-output" id="scanOutput"></div>
-            </div>
-        </div>
-        
-        
-            <div class="container-cards">
-            <!-- LXC-Sentinel Status Card -->
-            <div class="container-card">
-                <h3><span class="status-indicator" id="sentinel-status-dot"></span>LXC-Sentinel</h3>
-                <div class="ip-address">192.168.1.200</div>
-                <div class="monitoring-summary">
-                    <div class="small-metric">
-                        <span class="small-value" id="sentinel-uptime">-</span>
-                        <span class="small-label">Uptime</span>
+                        <!-- Jellyfin Container -->
+                        <div class="container-card">
+                            <h3><span class="status-indicator" data-device-ip="192.168.1.94"></span>Jellyfin</h3>
+                            <div class="ip-address">192.168.1.94</div>
+                            <a href="http://192.168.1.94:8096" target="_blank" class="button">
+                                <i class="fas fa-play mr-1"></i>UI
+                            </a>
+                            <button onclick="openWebSSH('192.168.1.94', 'root')" class="button">
+                                <i class="fas fa-terminal mr-1"></i>SSH
+                            </button>
+                        </div>
                     </div>
                 </div>
-                <button onclick="openMonitoringModal()" class="button">
-                    <i class="fas fa-chart-line mr-1"></i>Details
-                </button>
             </div>
 
-            <!-- Network Overview Card -->
-            <div class="container-card">
-                <h3><span class="status-indicator online"></span>Network</h3>
-                <div class="ip-address">192.168.1.0/24</div>
-                <div class="monitoring-summary">
-                    <div class="small-metric">
-                        <span class="small-value" id="total-devices">-</span>
-                        <span class="small-label">Devices</span>
+            <!-- Network Monitoring Accordion -->
+            <div class="accordion-section">
+                <div class="accordion-header" onclick="toggleAccordion('monitoring')">
+                    <h2 class="section-header-accordion">
+                        <i class="fas fa-chart-line mr-2"></i>Network Monitoring
+                        <i class="fas fa-chevron-down accordion-icon" id="monitoring-icon"></i>
+                    </h2>
+                </div>
+                <div class="accordion-content active" id="monitoring-content">
+                    <!-- Scan Controls -->
+                    <div class="scan-controls-container">
+                        <div class="scan-buttons">
+                            <button class="button scan-button" onclick="startFullScan()" id="fullScanBtn">
+                                <i class="fas fa-search mr-2"></i>Full Scan
+                            </button>
+                            <button class="button scan-button" onclick="startQuickScan()" id="quickScanBtn">
+                                <i class="fas fa-bolt mr-2"></i>Quick Scan
+                            </button>
+                            <button class="button scan-button" onclick="startSecurityScan()" id="securityScanBtn">
+                                <i class="fas fa-shield-alt mr-2"></i>Security Scan
+                            </button>
+                        </div>
+                        
+                        <!-- Progress Container -->
+                        <div class="scan-progress-container" id="scanProgressContainer" style="display: none;">
+                            <div class="scan-status-text" id="scanStatusText">Initializing scan...</div>
+                            <div class="scan-progress-bar">
+                                <div class="scan-progress-fill" id="scanProgressFill"></div>
+                            </div>
+                            <div class="scan-output" id="scanOutput"></div>
+                        </div>
                     </div>
-                    <div class="small-metric">
-                        <span class="small-value online" id="online-devices">-</span>
-                        <span class="small-label">Online</span>
+                    
+                    <div class="container-cards">
+                        <!-- LXC-Sentinel Status Card -->
+                        <div class="container-card">
+                            <h3><span class="status-indicator" id="sentinel-status-dot"></span>LXC-Sentinel</h3>
+                            <div class="ip-address">192.168.1.200</div>
+                            <div class="monitoring-summary">
+                                <div class="small-metric">
+                                    <span class="small-value" id="sentinel-uptime">-</span>
+                                    <span class="small-label">Uptime</span>
+                                </div>
+                            </div>
+                            <button onclick="openMonitoringModal()" class="button">
+                                <i class="fas fa-chart-line mr-1"></i>Details
+                            </button>
+                        </div>
+
+                        <!-- Network Overview Card -->
+                        <div class="container-card">
+                            <h3><span class="status-indicator online"></span>Network</h3>
+                            <div class="ip-address">192.168.1.0/24</div>
+                            <div class="monitoring-summary">
+                                <div class="small-metric">
+                                    <span class="small-value" id="total-devices">-</span>
+                                    <span class="small-label">Devices</span>
+                                </div>
+                                <div class="small-metric">
+                                    <span class="small-value online" id="online-devices">-</span>
+                                    <span class="small-label">Online</span>
+                                </div>
+                            </div>
+                            <button onclick="showDeviceList()" class="button">
+                                <i class="fas fa-network-wired mr-1"></i>Devices
+                            </button>
+                        </div>
+
+                        <!-- Security Status Card -->
+                        <div class="container-card">
+                            <h3><span class="status-indicator" id="security-status-dot"></span>Security</h3>
+                            <div class="ip-address">Scan Status</div>
+                            <div class="monitoring-summary">
+                                <div class="small-metric">
+                                    <span class="small-value" id="vuln-count">-</span>
+                                    <span class="small-label">Issues</span>
+                                </div>
+                                <div class="small-metric">
+                                    <span class="small-value" id="last-scan-short">-</span>
+                                    <span class="small-label">Last Scan</span>
+                                </div>
+                            </div>
+                            <button onclick="showSecurityDetails()" class="button">
+                                <i class="fas fa-shield-alt mr-1"></i>Report
+                            </button>
+                        </div>
+
+                        <!-- Bandwidth Card -->
+                        <div class="container-card">
+                            <h3><span class="status-indicator online"></span>Traffic</h3>
+                            <div class="ip-address">eth0</div>
+                            <div class="monitoring-summary">
+                                <div class="small-metric">
+                                    <span class="small-value" id="total-rx-short">-</span>
+                                    <span class="small-label">RX</span>
+                                </div>
+                                <div class="small-metric">
+                                    <span class="small-value" id="total-tx-short">-</span>
+                                    <span class="small-label">TX</span>
+                                </div>
+                            </div>
+                            <button onclick="showBandwidthDetails()" class="button">
+                                <i class="fas fa-chart-area mr-1"></i>Stats
+                            </button>
+                        </div>
                     </div>
                 </div>
-                <button onclick="showDeviceList()" class="button">
-                    <i class="fas fa-network-wired mr-1"></i>Devices
-                </button>
             </div>
 
-            <!-- Security Status Card -->
-            <div class="container-card">
-                <h3><span class="status-indicator" id="security-status-dot"></span>Security</h3>
-                <div class="ip-address">Scan Status</div>
-                <div class="monitoring-summary">
-                    <div class="small-metric">
-                        <span class="small-value" id="vuln-count">-</span>
-                        <span class="small-label">Issues</span>
-                    </div>
-                    <div class="small-metric">
-                        <span class="small-value" id="last-scan-short">-</span>
-                        <span class="small-label">Last Scan</span>
-                    </div>
+            <!-- System Stats Accordion -->
+            <div class="accordion-section">
+                <div class="accordion-header" onclick="toggleAccordion('system-stats')">
+                    <h2 class="section-header-accordion">
+                        <i class="fas fa-tachometer-alt mr-2"></i>System Statistics
+                        <i class="fas fa-chevron-down accordion-icon" id="system-stats-icon"></i>
+                    </h2>
                 </div>
-                <button onclick="showSecurityDetails()" class="button">
-                    <i class="fas fa-shield-alt mr-1"></i>Report
-                </button>
-            </div>
-
-            <!-- Bandwidth Card -->
-            <div class="container-card">
-                <h3><span class="status-indicator online"></span>Traffic</h3>
-                <div class="ip-address">eth0</div>
-                <div class="monitoring-summary">
-                    <div class="small-metric">
-                        <span class="small-value" id="total-rx-short">-</span>
-                        <span class="small-label">RX</span>
+                <div class="accordion-content active" id="system-stats-content">
+                    <div class="stats-container">
+                        <h3><span class="status-indicator" data-device-ip="192.168.1.90"></span>System</h3>
+                        
+                        <div class="stats-flex">
+                            <div class="stat-item">
+                                <div class="stat-label">UPTIME</div>
+                                <div class="stat-value" id="dullbox-uptime">Loading...</div>
+                            </div>
+                            
+                            <div class="stat-item">
+                                <div class="stat-label">CPU USAGE</div>
+                                <div class="stat-value" id="dullbox-cpu">Loading...</div>
+                            </div>
+                            
+                            <div class="stat-item">
+                                <div class="stat-label">MEMORY</div>
+                                <div class="stat-value" id="dullbox-memory">Loading...</div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="small-metric">
-                        <span class="small-value" id="total-tx-short">-</span>
-                        <span class="small-label">TX</span>
-                    </div>
-                </div>
-                <button onclick="showBandwidthDetails()" class="button">
-                    <i class="fas fa-chart-area mr-1"></i>Stats
-                </button>
-            </div>
-        </div>
-    </section>
-            
-        <!-- Server Statistics Container -->
-        <div class="stats-container">
-            <h3><span class="status-indicator" data-device-ip="192.168.1.90"></span>System</h3>
-            
-            <div class="stats-flex">
-                <div class="stat-item">
-                    <div class="stat-label">UPTIME</div>
-                    <div class="stat-value" id="dullbox-uptime">Loading...</div>
-                </div>
-                
-                <div class="stat-item">
-                    <div class="stat-label">CPU USAGE</div>
-                    <div class="stat-value" id="dullbox-cpu">Loading...</div>
-                </div>
-                
-                <div class="stat-item">
-                    <div class="stat-label">MEMORY</div>
-                    <div class="stat-value" id="dullbox-memory">Loading...</div>
                 </div>
             </div>
         </div>
@@ -351,7 +383,7 @@
         </div>
     </div>
 
-    <!-- Ollama AI Chat Modal (took a while, and yea it's pointless on my GTX 1660Ti, but works and was fun)-->
+    <!-- Ollama AI Chat Modal -->
     <div class="modal fade" id="ollamaModal" tabindex="-1" role="dialog" aria-labelledby="ollamaModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl" role="document">
             <div class="modal-content" style="background-color: rgba(10, 10, 10, 0.95); border: 1px solid var(--title-color);">
@@ -395,7 +427,7 @@
                     <div id="chatStatus" class="mt-2" style="display: none;">
                         <small class="text-muted">
                             <i class="fas fa-circle" style="color: #2ecc71;"></i>
-                            AI is thinking...
+                            AI is "thinking"
                         </small>
                     </div>
                 </div>
@@ -403,7 +435,7 @@
         </div>
     </div>
 
-        <!-- Monitoring Details Modal -->
+    <!-- Monitoring Details Modal -->
     <div class="modal fade" id="monitoringModal" tabindex="-1" role="dialog" aria-labelledby="monitoringModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl" role="document">
             <div class="modal-content" style="background-color: rgba(10, 10, 10, 0.95); border: 1px solid var(--title-color);">
@@ -422,7 +454,7 @@
                 </div>
                 <div class="modal-body p-3" style="height: 70vh; overflow-y: auto;">
                     <div id="monitoring-modal-content">
-                        <div class="loading">Loading monitoring data...</div>
+                        <div class="loading">Loading monitoring data</div>
                     </div>
                 </div>
             </div>
@@ -434,9 +466,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.4.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-    <!-- Add this with your other scripts at the bottom -->
-    <script src="/js/monitoring_dashboard.js"></script>
-    
     <!-- Custom Scripts -->
     <script src="scripts.js"></script>
 </body>

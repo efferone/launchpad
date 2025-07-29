@@ -548,3 +548,136 @@ h3 {
         max-height: 200px;
     }
 }
+
+/* accordian styling, with emojis! */
+.dashboard-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.accordion-section {
+    margin-bottom: 15px;
+    background-color: var(--card-color);
+    border: 1px solid rgba(255, 119, 0, 0.3);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.accordion-section:hover {
+    box-shadow: 0 4px 15px rgba(255, 119, 0, 0.2);
+}
+
+.accordion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    cursor: pointer;
+    background: linear-gradient(135deg, rgba(255, 119, 0, 0.1), rgba(0, 255, 255, 0.05));
+    border-bottom: 1px solid rgba(255, 119, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.accordion-header:hover {
+    background: linear-gradient(135deg, rgba(255, 119, 0, 0.2), rgba(0, 255, 255, 0.1));
+}
+
+.section-header-accordion {
+    margin: 0;
+    color: var(--title-color);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.1rem;
+    text-shadow: 0 0 5px var(--title-color);
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.accordion-icon {
+    color: var(--primary-color);
+    transition: transform 0.3s ease;
+    margin-left: 10px;
+    font-size: 0.9rem;
+}
+
+.accordion-icon.rotated {
+    transform: rotate(180deg);
+}
+
+.accordion-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.compact-btn {
+    padding: 6px 12px !important;
+    font-size: 0.8rem !important;
+    margin: 2px !important;
+}
+
+.accordion-content {
+    padding: 20px;
+    max-height: 2000px;
+    overflow: hidden;
+    transition: all 0.4s ease;
+    opacity: 1;
+}
+
+.accordion-content.collapsed {
+    max-height: 0;
+    padding: 0 20px;
+    opacity: 0;
+}
+
+/* Update existing section styling for accordion compatibility */
+.accordion-content .cards,
+.accordion-content .container-cards {
+    margin-top: 0;
+}
+
+.accordion-content .stats-container {
+    margin: 0;
+}
+
+/* Accordion state indicators */
+.accordion-section.has-offline-devices .accordion-header::before {
+    content: "⚠️";
+    margin-right: 8px;
+    font-size: 0.9rem;
+}
+
+.accordion-section.has-errors .accordion-header::before {
+    content: "❌";
+    margin-right: 8px;
+    font-size: 0.9rem;
+}
+
+/* Responsive accordion */
+@media (max-width: 768px) {
+    .accordion-header {
+        flex-direction: column;
+        gap: 10px;
+        padding: 12px 15px;
+    }
+    
+    .section-header-accordion {
+        font-size: 1rem;
+    }
+    
+    .accordion-actions {
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .compact-btn {
+        flex: 1;
+        min-width: 80px;
+    }
+    
+    .accordion-content {
+        padding: 15px;
+    }
+}

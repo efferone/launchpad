@@ -840,6 +840,246 @@ function updateLastScanInfo() {
         lastScanEl.textContent = now.toLocaleTimeString();
     }
     
-    // You can add more scan result updates here
+  
     console.log('Scan results updated in dashboard');
 }
+
+// ACCORDION FUNCTIONALITY 
+
+// State management for accordion sections
+const accordionState = {
+    'home-devices': true,
+    'dullbox': true,
+    'services': true,
+    'monitoring': true,
+    'system-stats': true
+};
+
+// Load accordion state from localStorage
+function loadAccordionState() {
+    const saved = localStorage.getItem('hometown-accordion-state');
+    if (saved) {
+        try {
+            Object.assign(accordionState, JSON.parse(saved));
+        } catch (e) {
+            console.log('Could not load accordion state');
+        }
+    }
+}
+
+// Save accordion state to localStorage
+function saveAccordionState() {
+    try {
+        localStorage.setItem('hometown-accordion-state', JSON.stringify(accordionState));
+    } catch (e) {
+        console.log('Could not save accordion state');
+    }
+}
+
+// Toggle accordion section
+function toggleAccordion(sectionId) {
+    const content = document.getElementById(sectionId + '-content');
+    const icon = document.getElementById(sectionId + '-icon');
+    
+    if (!content || !icon) return;
+    
+    const isCurrentlyOpen = accordionState[sectionId];
+    
+    if (isCurrentlyOpen) {
+        // Close the section
+        content.classList.add('collapsed');
+        icon.classList.add('rotated');
+        accordionState[sectionId] = false;
+    } else {
+        // Open the section
+        content.classList.remove('collapsed');
+        icon.classList.remove('rotated');
+        accordionState[sectionId] = true;
+    }
+    
+    saveAccordionState();
+    
+    // Add a nice animation effect
+    const section = content.closest('.accordion-section');
+    section.style.transform = 'scale(0.99)';
+    setTimeout(() => {
+        section.style.transform = 'scale(1)';
+    }, 150);
+}
+
+// Initialize accordion states on page load
+function initializeAccordion() {
+    loadAccordionState();
+    
+    Object.keys(accordionState).forEach(sectionId => {
+        const content = document.getElementById(sectionId + '-content');
+        const icon = document.getElementById(sectionId + '-icon');
+        
+        if (content && icon) {
+            if (!accordionState[sectionId]) {
+                content.classList.add('collapsed');
+                icon.classList.add('rotated');
+            } else {
+                content.classList.remove('collapsed');
+                icon.classList.remove('rotated');
+            }
+        }
+    });
+}
+
+// Expand all accordion sections
+function expandAllAccordions() {
+    Object.keys(accordionState).forEach(sectionId => {
+        if (!accordionState[sectionId]) {
+            toggleAccordion(sectionId);
+        }
+    });
+}
+
+// Collapse all accordion sections
+function collapseAllAccordions() {
+    Object.keys(accordionState).forEach(sectionId => {
+        if (accordionState[sectionId]) {
+            toggleAccordion(sectionId);
+        }
+    });
+}
+
+// Add status indicators to accordion headers based on device status
+function updateAccordionStatusIndicators() {
+    // Check for offline devices in home devices section
+    const homeDevicesOffline = document.querySelectorAll('#home-devices-content .status-indicator.offline').length;
+    const homeDevicesSection = document.querySelector('.accordion-section:has(#home-devices-content)');
+    
+    if (homeDevicesOffline > 0) {
+        homeDevicesSection?.classList.add('has-offline-devices');
+    } else {
+        homeDevicesSection?.classList.remove('has-offline-devices');
+    }
+    
+    // Check for offline devices in dullbox section
+    const dullboxOffline = document.querySelectorAll('#dullbox-content .status-indicator.offline').length;
+    const dullboxSection = document.querySelector('.accordion-section:has(#dullbox-content)');
+    
+    if (dullboxOffline > 0) {
+        dullboxSection?.classList.add('has-offline-devices');
+    } else {
+        dullboxSection?.classList.remove('has-offline-devices');
+    }
+    
+    // Check for offline devices in services section
+    const servicesOffline = document.querySelectorAll('#services-content .status-indicator.offline').length;
+    const servicesSection = document.querySelector('.accordion-section:has(#services-content)');
+    
+    if (servicesOffline > 0) {
+        servicesSection?.classList.add('has-offline-devices');
+    } else {
+        servicesSection?.classList.remove('has-offline-devices');
+    }
+}
+
+// Enhanced device status check to update accordion indicators
+const originalCheckDeviceStatus = checkDeviceStatus;
+checkDeviceStatus = function() {
+    originalCheckDeviceStatus();
+    // Update accordion status indicators after device status check
+    setTimeout(updateAccordionStatusIndicators, 500);
+};
+
+// Add keyboard shortcuts for accordion
+function handleAccordionKeyboard(event) {
+    // Ctrl/Cmd + Shift + E = Expand All
+    if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'E') {
+        event.preventDefault();
+        expandAllAccordions();
+    }
+    
+    // Ctrl/Cmd + Shift + C = Collapse All
+    if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'C') {
+        event.preventDefault();
+        collapseAllAccordions();
+    }
+    
+    // Numbers 1-5 to toggle specific sections
+    if (event.altKey && event.key >= '1' && event.key <= '5') {
+        event.preventDefault();
+        const sections = ['home-devices', 'dullbox', 'services', 'monitoring', 'system-stats'];
+        const sectionIndex = parseInt(event.key) - 1;
+        if (sections[sectionIndex]) {
+            toggleAccordion(sections[sectionIndex]);
+        }
+    }
+}
+
+// Update the DOMContentLoaded event listener to include accordion initialization
+const originalDOMContentLoaded = document.addEventListener;
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Initializing HomeTown Dashboard with OpenResty and Accordion...');
+    
+    // Add connection status indicator
+    const statusEl = document.createElement('div');
+    statusEl.id = 'connection-status';
+    statusEl.textContent = '🟢 OpenResty';
+    statusEl.style.cssText = `
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 12px;
+        z-index: 1000;
+        background: rgba(46, 204, 113, 0.2);
+        border: 1px solid #2ecc71;
+        color: #2ecc71;
+        font-family: 'JetBrains Mono', monospace;
+    `;
+    document.body.appendChild(statusEl);
+    
+    // Add accordion controls
+    const accordionControls = document.createElement('div');
+    accordionControls.id = 'accordion-controls';
+    accordionControls.style.cssText = `
+        position: fixed;
+        top: 50px;
+        right: 10px;
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    `;
+    
+    const expandBtn = document.createElement('button');
+    expandBtn.textContent = 'Expand All';
+    expandBtn.className = 'button compact-btn';
+    expandBtn.onclick = expandAllAccordions;
+    expandBtn.title = 'Expand all sections (Ctrl+Shift+E)';
+    
+    const collapseBtn = document.createElement('button');
+    collapseBtn.textContent = 'Collapse All';
+    collapseBtn.className = 'button compact-btn';
+    collapseBtn.onclick = collapseAllAccordions;
+    collapseBtn.title = 'Collapse all sections (Ctrl+Shift+C)';
+    
+    accordionControls.appendChild(expandBtn);
+    accordionControls.appendChild(collapseBtn);
+    document.body.appendChild(accordionControls);
+    
+    // Initialize accordion
+    initializeAccordion();
+    
+    // Add keyboard event listener
+    document.addEventListener('keydown', handleAccordionKeyboard);
+    
+    // Initialize monitoring
+    initMonitoring();
+    
+    // Initialize stats and device checking
+    updateStats();
+    checkDeviceStatus();
+    
+    // Set up intervals
+    setInterval(updateStats, 60000);  // Update every 60 seconds
+    setInterval(checkDeviceStatus, 30000);  // Update every 30 seconds
+    
+    console.log('Dashboard initialization complete');
+});
