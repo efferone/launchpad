@@ -46,7 +46,7 @@ if not command then
     return
 end
 
--- Execute scan command in background
+-- run scan command in background
 local ssh_command = string.format(
     'HOME=/var/lib/nobody ssh -i /var/lib/nobody/.ssh/id_ed25519 -o StrictHostKeyChecking=no -o ConnectTimeout=5 root@192.168.1.200 "echo \\"Starting scan %s\\" && nohup %s > /tmp/scan_%s.log 2>&1 & echo \\"Scan started with ID: %s\\""',
     scan_id, command, scan_id, scan_id
